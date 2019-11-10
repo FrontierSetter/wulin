@@ -663,17 +663,7 @@
                 myChartLine.resize();
             }
         </script>
-
-        <script>
-            function eConsole(param) {
-            　　//param.dataIndex 获取当前点击索引，
-            　　alert(param.dataIndex);
-            // 　　clickFunc(param.dataIndex);//执行点击效果
-            }
-            myChartPie.on("click", eConsole);
-        </script>
-    
-               
+                  
     </body>
 </html>
 
@@ -695,4 +685,54 @@
     // map.setMapStyleV2({     
     //     styleId: '17c84567c712a49ee687af01700e1d74'
     // });
+</script>
+
+<script>
+    // var data_info = [[121.447176,31.033731],[135.447176,35.033731],[115.447176,35.033731]];
+    var data_info = [[121.447176,31.033731,"car1"],[121.445009,31.030844,"car2"],[121.444695,31.027936,"car2"]];
+    function eConsole(param) {
+    　　//param.dataIndex 获取当前点击索引，
+    // 　　alert(param.dataIndex);
+        map.clearOverlays();
+    　　clickFunc(param.dataIndex);//执行点击效果
+    }
+    myChartPie.on("click", eConsole);
+    
+    function addMouseHandler(content,marker){
+        marker.addEventListener("mouseover",function(e){
+            
+            this.getPosition();
+            openInfo(content, e);
+        });
+    }
+
+    function openInfo(content, e){
+        // alert("mouse on");
+        var p=e.target;
+        
+        var opts = {
+            // width : 50px,     // 信息窗口宽度
+            // height: '10%',     // 信息窗口高度
+            title : '车辆编号'  // 信息窗口标题
+        }
+
+        
+        var point=new BMap.Point(p.getPosition().lng, p.getPosition().lat);
+        var infoWindow = new BMap.InfoWindow(content, opts);
+        map.openInfoWindow(infoWindow, point);
+        // alert(content);
+    }
+
+    function clickFunc(carType){
+        // alert(data_info.length);
+        var myIcon = new BMap.Icon("./img/icon-green-small.gif", new BMap.Size(25, 25));
+        for(var i = 0; i < data_info.length; ++i){
+            
+            var marker = new BMap.Marker(new BMap.Point(data_info[i][0], data_info[i][1]));
+            marker.setIcon(myIcon);
+            var content = data_info[i][2];
+            map.addOverlay(marker)
+            addMouseHandler(content, marker);
+        }
+    }
 </script>
