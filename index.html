@@ -58,24 +58,6 @@
             height:25%;
             float: left; 
         }
-        /* input{
-                border: 1px solid #ccc;
-                padding: 7px 0px;
-                border-radius: 3px;
-                padding-left:5px;
-                width:100%;
-                -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
-                box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
-                -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
-                -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
-                transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s
-        }
-        input:focus{
-                border-color: #66afe9;
-                outline: 0;
-                -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6);
-                box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6)
-        } */
         </style>
 
         
@@ -114,37 +96,7 @@
                 <div class="ui animated button">
                     <div class="visible content">搜索</div>
                     <div class="hidden content">走</div>
-                </div>
-
-                <!-- <div style="height: 50px; width:80%; float: left; padding-top: 10px; padding-left: 30px;">
-                    <input type="text" name="carNum" />
-                </div>
-                <div id="selectBar" style="height: 50px; width: 250px; float: left;">
-                    <select class="selectpicker" sid="questType" data-live-search="true" data-container="detailOption">
-                        <optgroup label="车辆状态">
-                            <option value="velocity" selected>速度</option>
-                            <option value="cumulative_mileage">总行驶里程</option>
-                            <option value="drive_motor_rpm">电机转速</option>
-                            <option value="drive_motor_temperature">电机温度</option>
-                        </optgroup>
-                        <optgroup label="电池信息">
-                            <option value="residual_energy">剩余电量</option>
-                            <option value="high_voltage_battery_current">总电流</option>
-                            <option value="total_battery_voltage">总电压</option>
-                            <option value="max_single_voltage">电池最高单体电压</option>
-                            <option value="min_single_voltage">电池最低单体电压</option>
-                            <option value="insulation_resistance_value">绝缘阻值</option>
-                        </optgroup>
-                        <optgroup label="其他数据">
-                            <option value="motor_torque">电机转矩</option>
-                            <option value="motor_controller_current">电机控制器电流</option>
-                            <option value="motor_controller_voltage">电机控制器电压</option>
-                        </optgroup>
-                    </select>
-                </div>
-                <div style="height: 50px; width: 30%; float: left;"><button style="color: skyblue;" class="btn btn-1 btn-1d" >查询</button></div> -->
-                
-                
+                </div>  
             </div>
             <div id="detailLine" style="height: 35%; width: 100%; float: left;">
                     <div id="dynamicLine" style="height: 130%; width: 100%; float: left;"></div>
@@ -526,41 +478,6 @@
        
 <!-- 底部栏 -->
         <script type="text/javascript">
-        // <!-- Guage Start -->
-            // var domGuage = document.getElementById("Gauge");
-            // var myChartGuage = echarts.init(domGuage);
-            // var app = {};
-            // optionGuage = null;
-            // optionGuage = {
-            //     tooltip : {
-            //         formatter: "{a} <br/>{b} : {c}%"
-            //     },
-            //     // toolbox: {
-            //     //     feature: {
-            //     //         restore: {},
-            //     //         saveAsImage: {}
-            //     //     }
-            //     // },
-            //     series: [
-            //         {
-            //             name: '故障车辆比率',
-            //             type: 'gauge',
-            //             detail: {formatter:'{value}%'},
-            //             data: [{value: 20, name: '故障比例'}]
-            //         }
-            //     ]
-            // };
-            
-            // setInterval(function () {
-            //     optionGuage.series[0].data[0].value = (Math.random() * 100).toFixed(2) - 0;
-            //     myChartGuage.setOption(optionGuage, true);
-            // },2000);
-            // ;
-            // if (optionGuage && typeof optionGuage === "object") {
-            //     myChartGuage.setOption(optionGuage, true);
-            // }
-
-    // <!-- Guage End -->
       
     // <!-- Pie Start -->
             var domPie = document.getElementById("Pie");
@@ -741,7 +658,6 @@
         <script>
             window.onresize = function () {
                 myChartPie.resize();
-                // myChartGuage.resize();
                 myChartStack.resize();
                 myChartGuage.resize();
                 myChartLine.resize();
@@ -780,40 +696,3 @@
     //     styleId: '17c84567c712a49ee687af01700e1d74'
     // });
 </script>
-
-
-
-<!-- <script>
-        export default {
-          data() {
-            return {
-              options: [{
-                label: '热门城市',
-                options: [{
-                  value: 'Shanghai',
-                  label: '上海'
-                }, {
-                  value: 'Beijing',
-                  label: '北京'
-                }]
-              }, {
-                label: '城市名',
-                options: [{
-                  value: 'Chengdu',
-                  label: '成都'
-                }, {
-                  value: 'Shenzhen',
-                  label: '深圳'
-                }, {
-                  value: 'Guangzhou',
-                  label: '广州'
-                }, {
-                  value: 'Dalian',
-                  label: '大连'
-                }]
-              }],
-              value: ''
-            }
-          }
-        }
-      </script> -->
