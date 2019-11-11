@@ -162,530 +162,14 @@
             
         </div>
 
-<!-- 右侧栏折线图 开始 -->
-        <script type="text/javascript">
-            var domLine = document.getElementById("dynamicLine");
-            var myChartLine = echarts.init(domLine);
-            var app = {};
-            optionLine = null;
-            function randomData() {
-                now = new Date(+now + oneDay);
-                value = value + Math.random() * 21 - 10;
-                return {
-                    name: now.toString(),
-                    value: [
-                        [now.getFullYear(), now.getMonth() + 1, now.getDate()].join('/'),
-                        Math.round(value)
-                    ]
-                }
-            }
-            
-            var data = [];
-            var now = +new Date(1997, 9, 3);
-            var oneDay = 24 * 3600 * 1000;
-            var value = Math.random() * 1000;
-            for (var i = 0; i < 1000; i++) {
-                data.push(randomData());
-            }
-            
-            optionLine = {
-                title: {
-                    text: '历史速度'
-                },
-                tooltip: {
-                    trigger: 'axis',
-                    formatter: function (params) {
-                        params = params[0];
-                        var date = new Date(params.name);
-                        return date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear() + ' : ' + params.value[1];
-                    },
-                    axisPointer: {
-                        animation: false
-                    }
-                },
-                xAxis: {
-                    type: 'time',
-                    splitLine: {
-                        show: false
-                    }
-                },
-                yAxis: {
-                    type: 'value',
-                    boundaryGap: [0, '100%'],
-                    splitLine: {
-                        show: false
-                    }
-                },
-                series: [{
-                    name: '模拟数据',
-                    type: 'line',
-                    showSymbol: false,
-                    hoverAnimation: false,
-                    data: data
-                }]
-            };
-            
-            setInterval(function () {
-            
-                for (var i = 0; i < 5; i++) {
-                    data.shift();
-                    data.push(randomData());
-                }
-            
-                myChartLine.setOption({
-                    series: [{
-                        data: data
-                    }]
-                });
-            }, 1000);;
-            if (optionLine && typeof optionLine === "object") {
-                myChartLine.setOption(optionLine, true);
-            }
-        </script>
-<!-- 右侧栏折线图 结束 -->
 
-<!-- 右侧栏仪表盘 开始 -->
-
-        <script type="text/javascript">
-            var domGuage = document.getElementById("guage");
-            var myChartGuage = echarts.init(domGuage);
-            var app = {};
-            optionGuage = null;
-            optionGuage = {
-                tooltip : {
-                    formatter: "{a} <br/>{c} {b}"
-                },
-                // toolbox: {
-                //     show: true,
-                //     feature: {
-                //         restore: {show: true},
-                //         saveAsImage: {show: true}
-                //     }
-                // },
-                series : [
-                    {
-                        name: '速度',
-                        type: 'gauge',
-                        z: 3,
-                        center: ['48%', '50%'],    // 默认全局居中
-
-                        min: 0,
-                        max: 50,
-                        splitNumber: 10,
-                        radius: '55%',
-                        axisLine: {            // 坐标轴线
-                            lineStyle: {       // 属性lineStyle控制线条样式
-                                color : [ //表盘颜色
-                                    [ 0.2,  "#8FBC8F"],//0-50%处的颜色
-                                    [ 0.6, "#4F94CD" ],//51%-70%处的颜色
-                                    [ 1, "#B22222" ],//70%-90%处的颜色
-                                ],
-                                width: 10
-                            }
-                        },
-                        axisTick: {            // 坐标轴小标记
-                            length: "15%",        // 属性length控制线长
-                            lineStyle: {       // 属性lineStyle控制线条样式
-                                color: 'auto'
-                            }
-                        },
-                        splitLine: {           // 分隔线
-                            length: "20%",         // 属性length控制线长
-                            lineStyle: {       // 属性lineStyle（详见lineStyle）控制线条样式
-                                color: 'auto'
-                            }
-                        },
-                        axisLabel: {
-                            backgroundColor: 'auto',
-                            borderRadius: 2,
-                            color: '#eee',
-                            padding: 3,
-                            fontSize:'70%',
-                            textShadowBlur: 2,
-                            textShadowOffsetX: 1,
-                            textShadowOffsetY: 1,
-                            textShadowColor: '#222'
-                        },
-                        pointer: {
-                            width:"7%"
-                        },
-                        title : {
-                            // 其余属性默认使用全局文本样式，详见TEXTSTYLE
-                            fontWeight: 'bolder',
-                            fontSize: '60%',
-                            fontStyle: 'italic'
-                        },
-                        detail : {
-                            // 其余属性默认使用全局文本样式，详见TEXTSTYLE
-                            formatter: function (value) {
-                                value = (value + '').split('.');
-                                value.length < 2 && (value.push('00'));
-                                return ('00' + value[0]).slice(-2)
-                                    + '.' + (value[1] + '00').slice(0, 2);
-                            },
-                            fontWeight: 'bolder',
-                            borderRadius: 3,
-                            backgroundColor: '#444',
-                            borderColor: '#aaa',
-                            shadowBlur: 5,
-                            shadowColor: '#333',
-                            shadowOffsetX: 0,
-                            shadowOffsetY: 3,
-                            borderWidth: 2,
-                            textBorderColor: '#000',
-                            textBorderWidth: 2,
-                            textShadowBlur: 2,
-                            textShadowColor: '#fff',
-                            textShadowOffsetX: 0,
-                            textShadowOffsetY: 0,
-                            fontFamily: 'Arial',
-                            fontSize:'100%',
-                            width: 100,
-                            color: '#eee',
-                            rich: {}
-                        },
-                        data:[{value: 40, name: 'km/h'}]
-                    },
-                    {
-                        name: '转速',
-                        type: 'gauge',
-                        center: ['15%', '55%'],    // 默认全局居中
-                        radius: '30%',
-                        min:0,
-                        max:7,
-                        endAngle:50,
-                        splitNumber:7,
-                        axisLine: {            // 坐标轴线
-                            lineStyle: {       // 属性lineStyle控制线条样式
-                                width: 8
-                            }
-                        },
-                        axisTick: {            // 坐标轴小标记
-                            length:'15%',        // 属性length控制线长
-                            lineStyle: {       // 属性lineStyle控制线条样式
-                                color: 'auto'
-                            }
-                        },
-                        splitLine: {           // 分隔线
-                            length:'20%',         // 属性length控制线长
-                            lineStyle: {       // 属性lineStyle（详见lineStyle）控制线条样式
-                                color: 'auto'
-                            }
-                        },
-                        pointer: {
-                            width:"8%"
-                        },
-                        title: {
-                            offsetCenter: [0, '-30%'],       // x, y，单位px
-                            fontSize:'60%'
-                        },
-                        detail: {
-                            // 其余属性默认使用全局文本样式，详见TEXTSTYLE
-                            fontWeight: 'bolder',
-                            fontSize:'10%',
-                        },
-                        data:[{value: 1.5, name: 'x1000 r/min'}]
-                    },
-                    {
-                        name: '油表',
-                        type: 'gauge',
-                        center: ['80%', '40%'],    // 默认全局居中
-                        radius: '25%',
-                        min: 0,
-                        max: 2,
-                        startAngle: 135,
-                        endAngle: 45,
-                        splitNumber: 2,
-                        axisLine: {            // 坐标轴线
-                            lineStyle: {       // 属性lineStyle控制线条样式
-                                width: 8
-                            }
-                        },
-                        axisTick: {            // 坐标轴小标记
-                            splitNumber: 5,
-                            length: '10%',        // 属性length控制线长
-                            lineStyle: {        // 属性lineStyle控制线条样式
-                                color: 'auto'
-                            }
-                        },
-                        axisLabel: {
-                            formatter:function(v){
-                                switch (v + '') {
-                                    case '0' : return 'E';
-                                    case '1' : return 'Gas';
-                                    case '2' : return 'F';
-                                }
-                            }
-                        },
-                        splitLine: {           // 分隔线
-                            length: '15%',         // 属性length控制线长
-                            lineStyle: {       // 属性lineStyle（详见lineStyle）控制线条样式
-                                color: 'auto'
-                            }
-                        },
-                        pointer: {
-                            width:"4%"
-                        },
-                        title : {
-                            show: false
-                        },
-                        detail : {
-                            show: false
-                        },
-                        data:[{value: 0.5, name: 'gas'}]
-                    },
-                    {
-                        name: '水表',
-                        type: 'gauge',
-                        center : ['80%', '58%'],    // 默认全局居中
-                        radius : '25%',
-                        min: 0,
-                        max: 2,
-                        startAngle: 315,
-                        endAngle: 225,
-                        splitNumber: 2,
-                        axisLine: {            // 坐标轴线
-                            lineStyle: {       // 属性lineStyle控制线条样式
-                                width: 8
-                            }
-                        },
-                        axisTick: {            // 坐标轴小标记
-                            show: false
-                        },
-                        axisLabel: {
-                            formatter:function(v){
-                                switch (v + '') {
-                                    case '0' : return 'H';
-                                    case '1' : return 'Water';
-                                    case '2' : return 'C';
-                                }
-                            }
-                        },
-                        splitLine: {           // 分隔线
-                            length: '15%',         // 属性length控制线长
-                            lineStyle: {       // 属性lineStyle（详见lineStyle）控制线条样式
-                                color: 'auto'
-                            }
-                        },
-                        pointer: {
-                            width:"4%"
-                        },
-                        title: {
-                            show: false
-                        },
-                        detail: {
-                            show: false
-                        },
-                        data:[{value: 0.5, name: 'gas'}]
-                    }
-                ]
-            };
-            
-            setInterval(function (){
-                optionGuage.series[0].data[0].value = (Math.random()*60).toFixed(2) - 0;
-                optionGuage.series[1].data[0].value = (Math.random()*7).toFixed(2) - 0;
-                optionGuage.series[2].data[0].value = (Math.random()*2).toFixed(2) - 0;
-                optionGuage.series[3].data[0].value = (Math.random()*2).toFixed(2) - 0;
-                myChartGuage.setOption(optionGuage,true);
-            },2000);;
-            if (optionGuage && typeof optionGuage === "object") {
-                myChartGuage.setOption(optionGuage, true);
-            }
-        </script>
-       
-<!-- 底部栏 -->
-        <script type="text/javascript">
-      
-    // <!-- Pie Start -->
-            var domPie = document.getElementById("Pie");
-            var myChartPie = echarts.init(domPie);
-            var app = {};
-            optionPie = null;
-            app.title = '环形图';
-            
-            optionPie = {
-                tooltip: {
-                    triggeron:'click',
-                    trigger: 'item',
-                    formatter: "{b}: {c} ({d}%)"
-                },
-                legend: {
-                    orient: 'vertical',
-                    x: 'left',
-                    data:['运行中','空闲中','低电量','离线','待维修']
-                    // tooltip: {
-                    //     triggeron:'click',
-                    //     trigger: 'item',
-                    //     formatter: "{b}: {c} ({d}%)"
-                    // }
-
-                },
-                series: [
-                    {
-                        name:'车辆状态',
-                        type:'pie',
-                        radius: ['35%', '70%'],
-                        avoidLabelOverlap: false,
-                        label: {
-                            normal: {
-                                show: false,
-                                position: 'center'
-                            },
-                            emphasis: {
-                                show: true,
-                                textStyle: {
-                                    fontSize: '110%',
-                                    fontWeight: 'bold'
-                                }
-                            }
-                        },
-                        labelLine: {
-                            normal: {
-                                show: true
-                            }
-                        },
-                        data:[
-                            {value:335, name:'运行中'},
-                            {value:335, name:'空闲中'},
-                            {value:310, name:'低电量'},
-                            {value:234, name:'离线'},
-                            {value:135, name:'待维修'},
-                        ]
-                    }
-                ]
-            };
-            ;
-            if (optionPie && typeof optionPie === "object") {
-                myChartPie.setOption(optionPie, true);
-            }
-        // <!-- Pie End -->
-
-
-        // 层叠图开始
-            var domStack = document.getElementById("Stack");
-            var myChartStack = echarts.init(domStack);
-            var app = {};
-            optionStack = null;
-            optionStack = {
-                title: {
-                    text: '车辆使用情况'
-                },
-                tooltip : {
-                    trigger: 'axis',
-                    axisPointer: {
-                        type: 'cross',
-                        label: {
-                            backgroundColor: '#6a7985'
-                        }
-                    }
-                },
-                legend: {
-                    data:['使用中','空闲中','低电量','离线','待维修']
-                },
-                // toolbox: {
-                //     feature: {
-                //         saveAsImage: {}
-                //     }
-                // },
-                grid: {
-                    // top: '15%',
-                    left: '3%',
-                    right: '4%',
-                    bottom: '50px',
-                    containLabel: true
-                },
-                xAxis : [
-                    {
-                        type : 'category',
-                        boundaryGap : false,
-                        data : ['','','','','','','']
-                    }
-                ],
-                yAxis : [
-                    {
-                        type : 'value'
-                    }
-                ],
-                dataZoom: [
-                    {   // 这个dataZoom组件，默认控制x轴。
-                        type: 'slider', // 这个 dataZoom 组件是 slider 型 dataZoom 组件
-                        start: 50,      // 左边在 10% 的位置。
-                        end: 100         // 右边在 60% 的位置。
-                    },
-                    {   // 这个dataZoom组件，也控制x轴。
-                        type: 'inside', // 这个 dataZoom 组件是 inside 型 dataZoom 组件
-                        start: 50,      // 左边在 10% 的位置。
-                        end: 100         // 右边在 60% 的位置。
-                    }
-                ],
-                series : [
-                    {
-                        name:'使用中',
-                        type:'line',
-                        stack: '总量',
-                        areaStyle: {},
-                        data:[120, 132, 101, 134, 90, 230, 210]
-                    },
-                    {
-                        name:'空闲中',
-                        type:'line',
-                        stack: '总量',
-                        areaStyle: {},
-                        data:[220, 182, 191, 234, 290, 330, 310]
-                    },
-                    {
-                        name:'低电量',
-                        type:'line',
-                        stack: '总量',
-                        areaStyle: {},
-                        data:[150, 232, 201, 154, 190, 330, 410]
-                    },
-                    {
-                        name:'离线',
-                        type:'line',
-                        stack: '总量',
-                        areaStyle: {normal: {}},
-                        data:[320, 332, 301, 334, 390, 330, 320]
-                    },
-                    {
-                        name:'待维修',
-                        type:'line',
-                        stack: '总量',
-                        label: {
-                            normal: {
-                                show: true,
-                                position: 'top'
-                            }
-                        },
-                        areaStyle: {normal: {}},
-                        data:[820, 932, 901, 934, 1290, 1330, 1320]
-                    }
-                ]
-            };
-            ;
-            if (optionStack && typeof optionStack === "object") {
-                myChartStack.setOption(optionStack, true);
-            }
-
-        // 层叠图 结束
-
-            
-        </script>
-
-        <script>
-            window.onresize = function () {
-                myChartPie.resize();
-                myChartStack.resize();
-                myChartGuage.resize();
-                myChartLine.resize();
-            }
-        </script>
-                  
     </body>
 </html>
 
-<!-- 初始化地图 -->
 <script type="text/javascript">
+
+// <!-- 初始化地图 -->
+
 	// 百度地图API功能
 	var map = new BMap.Map("mapDiv");  // 创建Map实例
 	// map.centerAndZoom("上海交通大学-电子信息与电气工程学院",15);      // 初始化地图,用城市名设置地图中心点
@@ -703,10 +187,663 @@
     // map.setMapStyleV2({     
     //     styleId: '17c84567c712a49ee687af01700e1d74'
     // });
-</script>
 
-<!-- 绘制地图 -->
-<script>
+
+
+
+
+// <!-- 全局变量 当前激活脚本 状态信息 -->
+
+    // 用于层叠图的全局变量数组
+    var stack_online;
+    var stack_offline;
+    var stack_charging;
+    var stack_time;
+
+
+// <!-- 单车查询 -->
+
+// <!-- 默认查询 -->
+
+// <!-- 背景查询 -->
+
+    // 初始化层叠图
+    function initialStack(){
+        alert('kaishi');
+        $.ajax({
+            url:'localhost:3000/query/history/status',
+            type:'get',
+            data:'length=500',
+            dataType:'json',
+            timeout:1000,
+            error:function(data){
+                alert('初始化层叠图请求失败');
+            },
+            success:function(data){
+                stack_online = new Array();
+                stack_offline = new Array();
+                stack_charging = new Array();
+                stack_time = new Array();
+
+
+                for(var i in data){
+                    stack_time.push(data[i][create_time]);
+                    stack_online.push(data[i][online]);
+                    stack_offline.push(data[i][offline]);
+                    stack_charging.push(data[i][charging]);
+                }
+
+                var option = myChartStack.getOption();
+                option.series[0].data = stack_online;
+                option.series[1].data = stack_offline;
+                option.series[2].data = stack_charging;
+                option.xAxis[0].data = stack_time;
+
+                myChartStack.setOption(option);
+            }
+        })
+    }
+
+    // 用于询问最近一次的车辆状态分布情况
+    function requestCurrentTypeNum(){
+        $.ajax({
+            url:'localhost:3000/query/history/status',
+            type:'get',
+            data:'length=1',
+            dataType:'json',
+            timeout:1000,
+            error:function(data){
+                alert('车辆状态分布请求失败');
+            },
+            success:function(data){
+                // 按需更新层叠图
+                if(data[0][create_time] != stack_time[stack_time.length-1]){
+                    stack_charging.shift();
+                    stack_charging.push(data[0][create_time]);
+                    stack_online.shift();
+                    stack_online.push(data[0][online]);
+                    stack_offline.shift();
+                    stack_offline.push(data[0][offline]);
+                    stack_charging.shift();
+                    stack_charging.push(data[0][charging]);
+
+                    var option = myChartStack.getOption();
+                    option.series[0].data = stack_online;
+                    option.series[1].data = stack_offline;
+                    option.series[2].data = stack_charging;
+                    option.xAxis[0].data = stack_time;
+
+                    myChartStack.setOption(option);
+                }
+
+                //更新饼图
+                var option = myChartPie.getOption();
+                option.series[0].data[0][value] = data[0][online];
+                option.series[0].data[1][value] = data[0][offline];
+                option.series[0].data[2][value] = data[0][charging];
+                myChartPie.setOption(option);
+
+            }
+        })
+    }
+
+
+// <!-- 回调函数 -->  
+
+    // <!-- 搜索点击回调函数 -->
+    function onClickSearchButton(){
+        var requestType = document.getElementById('select');
+        var requestTypeValue = requestType.options[requestType.selectedIndex].value;
+        var requestId = document.getElementById('search-select');
+        var requestIdValue = requestId.options[requestId.selectedIndex].value;
+        alert(requestIdValue);
+        alert(requestTypeValue);
+    }
+
+    // <!-- 地图覆盖物点击回调函数 -->
+    function onClickOverlay(targetId){
+        var requestId = document.getElementById('search-select');
+        requestId.options[requestId.selectedIndex].selected = false;
+        for(var i = 0; i < requestId.options.length; ++i){
+            alert(requestId.options[i].value);
+            if(requestId.options[i].value == targetId){
+                requestId.options[i].selected = true;
+                break;
+            }
+        }
+        // onClickSearchButton()
+        // alert(targetId);
+    }
+
+
+
+// <!-- 绘图 -->
+// <!-- 右侧栏折线图 开始 -->
+
+    var domLine = document.getElementById("dynamicLine");
+    var myChartLine = echarts.init(domLine);
+    var app = {};
+    optionLine = null;
+    function randomData() {
+        now = new Date(+now + oneDay);
+        value = value + Math.random() * 21 - 10;
+        return {
+            name: now.toString(),
+            value: [
+                [now.getFullYear(), now.getMonth() + 1, now.getDate()].join('/'),
+                Math.round(value)
+            ]
+        }
+    }
+    
+    var data = [];
+    var now = +new Date(1997, 9, 3);
+    var oneDay = 24 * 3600 * 1000;
+    var value = Math.random() * 1000;
+    for (var i = 0; i < 1000; i++) {
+        data.push(randomData());
+    }
+    
+    optionLine = {
+        title: {
+            text: '历史速度'
+        },
+        tooltip: {
+            trigger: 'axis',
+            formatter: function (params) {
+                params = params[0];
+                var date = new Date(params.name);
+                return date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear() + ' : ' + params.value[1];
+            },
+            axisPointer: {
+                animation: false
+            }
+        },
+        xAxis: {
+            type: 'time',
+            splitLine: {
+                show: false
+            }
+        },
+        yAxis: {
+            type: 'value',
+            boundaryGap: [0, '100%'],
+            splitLine: {
+                show: false
+            }
+        },
+        series: [{
+            name: '模拟数据',
+            type: 'line',
+            showSymbol: false,
+            hoverAnimation: false,
+            data: data
+        }]
+    };
+    
+    setInterval(function () {
+    
+        for (var i = 0; i < 5; i++) {
+            data.shift();
+            data.push(randomData());
+        }
+    
+        myChartLine.setOption({
+            series: [{
+                data: data
+            }]
+        });
+    }, 1000);;
+    if (optionLine && typeof optionLine === "object") {
+        myChartLine.setOption(optionLine, true);
+    }
+
+// <!-- 右侧栏折线图 结束 -->
+
+// <!-- 右侧栏仪表盘 开始 -->
+
+
+    var domGuage = document.getElementById("guage");
+    var myChartGuage = echarts.init(domGuage);
+    var app = {};
+    optionGuage = null;
+    optionGuage = {
+        tooltip : {
+            formatter: "{a} <br/>{c} {b}"
+        },
+        // toolbox: {
+        //     show: true,
+        //     feature: {
+        //         restore: {show: true},
+        //         saveAsImage: {show: true}
+        //     }
+        // },
+        series : [
+            {
+                name: '速度',
+                type: 'gauge',
+                z: 3,
+                center: ['48%', '50%'],    // 默认全局居中
+
+                min: 0,
+                max: 50,
+                splitNumber: 10,
+                radius: '55%',
+                axisLine: {            // 坐标轴线
+                    lineStyle: {       // 属性lineStyle控制线条样式
+                        color : [ //表盘颜色
+                            [ 0.2,  "#8FBC8F"],//0-50%处的颜色
+                            [ 0.6, "#4F94CD" ],//51%-70%处的颜色
+                            [ 1, "#B22222" ],//70%-90%处的颜色
+                        ],
+                        width: 10
+                    }
+                },
+                axisTick: {            // 坐标轴小标记
+                    length: "15%",        // 属性length控制线长
+                    lineStyle: {       // 属性lineStyle控制线条样式
+                        color: 'auto'
+                    }
+                },
+                splitLine: {           // 分隔线
+                    length: "20%",         // 属性length控制线长
+                    lineStyle: {       // 属性lineStyle（详见lineStyle）控制线条样式
+                        color: 'auto'
+                    }
+                },
+                axisLabel: {
+                    backgroundColor: 'auto',
+                    borderRadius: 2,
+                    color: '#eee',
+                    padding: 3,
+                    fontSize:'70%',
+                    textShadowBlur: 2,
+                    textShadowOffsetX: 1,
+                    textShadowOffsetY: 1,
+                    textShadowColor: '#222'
+                },
+                pointer: {
+                    width:"7%"
+                },
+                title : {
+                    // 其余属性默认使用全局文本样式，详见TEXTSTYLE
+                    fontWeight: 'bolder',
+                    fontSize: '60%',
+                    fontStyle: 'italic'
+                },
+                detail : {
+                    // 其余属性默认使用全局文本样式，详见TEXTSTYLE
+                    formatter: function (value) {
+                        value = (value + '').split('.');
+                        value.length < 2 && (value.push('00'));
+                        return ('00' + value[0]).slice(-2)
+                            + '.' + (value[1] + '00').slice(0, 2);
+                    },
+                    fontWeight: 'bolder',
+                    borderRadius: 3,
+                    backgroundColor: '#444',
+                    borderColor: '#aaa',
+                    shadowBlur: 5,
+                    shadowColor: '#333',
+                    shadowOffsetX: 0,
+                    shadowOffsetY: 3,
+                    borderWidth: 2,
+                    textBorderColor: '#000',
+                    textBorderWidth: 2,
+                    textShadowBlur: 2,
+                    textShadowColor: '#fff',
+                    textShadowOffsetX: 0,
+                    textShadowOffsetY: 0,
+                    fontFamily: 'Arial',
+                    fontSize:'100%',
+                    width: 100,
+                    color: '#eee',
+                    rich: {}
+                },
+                data:[{value: 40, name: 'km/h'}]
+            },
+            {
+                name: '转速',
+                type: 'gauge',
+                center: ['15%', '55%'],    // 默认全局居中
+                radius: '30%',
+                min:0,
+                max:7,
+                endAngle:50,
+                splitNumber:7,
+                axisLine: {            // 坐标轴线
+                    lineStyle: {       // 属性lineStyle控制线条样式
+                        width: 8
+                    }
+                },
+                axisTick: {            // 坐标轴小标记
+                    length:'15%',        // 属性length控制线长
+                    lineStyle: {       // 属性lineStyle控制线条样式
+                        color: 'auto'
+                    }
+                },
+                splitLine: {           // 分隔线
+                    length:'20%',         // 属性length控制线长
+                    lineStyle: {       // 属性lineStyle（详见lineStyle）控制线条样式
+                        color: 'auto'
+                    }
+                },
+                pointer: {
+                    width:"8%"
+                },
+                title: {
+                    offsetCenter: [0, '-30%'],       // x, y，单位px
+                    fontSize:'60%'
+                },
+                detail: {
+                    // 其余属性默认使用全局文本样式，详见TEXTSTYLE
+                    fontWeight: 'bolder',
+                    fontSize:'10%',
+                },
+                data:[{value: 1.5, name: 'x1000 r/min'}]
+            },
+            {
+                name: '油表',
+                type: 'gauge',
+                center: ['80%', '40%'],    // 默认全局居中
+                radius: '25%',
+                min: 0,
+                max: 2,
+                startAngle: 135,
+                endAngle: 45,
+                splitNumber: 2,
+                axisLine: {            // 坐标轴线
+                    lineStyle: {       // 属性lineStyle控制线条样式
+                        width: 8
+                    }
+                },
+                axisTick: {            // 坐标轴小标记
+                    splitNumber: 5,
+                    length: '10%',        // 属性length控制线长
+                    lineStyle: {        // 属性lineStyle控制线条样式
+                        color: 'auto'
+                    }
+                },
+                axisLabel: {
+                    formatter:function(v){
+                        switch (v + '') {
+                            case '0' : return 'E';
+                            case '1' : return 'Gas';
+                            case '2' : return 'F';
+                        }
+                    }
+                },
+                splitLine: {           // 分隔线
+                    length: '15%',         // 属性length控制线长
+                    lineStyle: {       // 属性lineStyle（详见lineStyle）控制线条样式
+                        color: 'auto'
+                    }
+                },
+                pointer: {
+                    width:"4%"
+                },
+                title : {
+                    show: false
+                },
+                detail : {
+                    show: false
+                },
+                data:[{value: 0.5, name: 'gas'}]
+            },
+            {
+                name: '水表',
+                type: 'gauge',
+                center : ['80%', '58%'],    // 默认全局居中
+                radius : '25%',
+                min: 0,
+                max: 2,
+                startAngle: 315,
+                endAngle: 225,
+                splitNumber: 2,
+                axisLine: {            // 坐标轴线
+                    lineStyle: {       // 属性lineStyle控制线条样式
+                        width: 8
+                    }
+                },
+                axisTick: {            // 坐标轴小标记
+                    show: false
+                },
+                axisLabel: {
+                    formatter:function(v){
+                        switch (v + '') {
+                            case '0' : return 'H';
+                            case '1' : return 'Water';
+                            case '2' : return 'C';
+                        }
+                    }
+                },
+                splitLine: {           // 分隔线
+                    length: '15%',         // 属性length控制线长
+                    lineStyle: {       // 属性lineStyle（详见lineStyle）控制线条样式
+                        color: 'auto'
+                    }
+                },
+                pointer: {
+                    width:"4%"
+                },
+                title: {
+                    show: false
+                },
+                detail: {
+                    show: false
+                },
+                data:[{value: 0.5, name: 'gas'}]
+            }
+        ]
+    };
+    
+    setInterval(function (){
+        optionGuage.series[0].data[0].value = (Math.random()*60).toFixed(2) - 0;
+        optionGuage.series[1].data[0].value = (Math.random()*7).toFixed(2) - 0;
+        optionGuage.series[2].data[0].value = (Math.random()*2).toFixed(2) - 0;
+        optionGuage.series[3].data[0].value = (Math.random()*2).toFixed(2) - 0;
+        myChartGuage.setOption(optionGuage,true);
+    },2000);;
+    if (optionGuage && typeof optionGuage === "object") {
+        myChartGuage.setOption(optionGuage, true);
+    }
+
+
+// <!-- 底部栏 -->
+
+
+// <!-- Pie Start -->
+    var domPie = document.getElementById("Pie");
+    var myChartPie = echarts.init(domPie);
+    var app = {};
+    optionPie = null;
+    app.title = '环形图';
+    
+    optionPie = {
+        tooltip: {
+            triggeron:'click',
+            trigger: 'item',
+            formatter: "{b}: {c} ({d}%)"
+        },
+        legend: {
+            orient: 'vertical',
+            x: 'left',
+            data:['online','offline','charging']
+            // data:['运行中','空闲中','低电量','离线','待维修']
+            // tooltip: {
+            //     triggeron:'click',
+            //     trigger: 'item',
+            //     formatter: "{b}: {c} ({d}%)"
+            // }
+
+        },
+        series: [
+            {
+                name:'车辆状态',
+                type:'pie',
+                radius: ['35%', '70%'],
+                avoidLabelOverlap: false,
+                label: {
+                    normal: {
+                        show: false,
+                        position: 'center'
+                    },
+                    emphasis: {
+                        show: true,
+                        textStyle: {
+                            fontSize: '110%',
+                            fontWeight: 'bold'
+                        }
+                    }
+                },
+                labelLine: {
+                    normal: {
+                        show: true
+                    }
+                },
+                data:[
+                    {value:335, name:'online'},
+                    {value:335, name:'offline'},
+                    {value:310, name:'charging'},
+                    // {value:234, name:'离线'},
+                    // {value:135, name:'待维修'},
+                ]
+            }
+        ]
+    };
+    ;
+    if (optionPie && typeof optionPie === "object") {
+        myChartPie.setOption(optionPie, true);
+    }
+// <!-- Pie End -->
+
+
+// 层叠图开始
+    var domStack = document.getElementById("Stack");
+    var myChartStack = echarts.init(domStack);
+    var app = {};
+    optionStack = null;
+    optionStack = {
+        title: {
+            text: '车辆使用情况'
+        },
+        tooltip : {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'cross',
+                label: {
+                    backgroundColor: '#6a7985'
+                }
+            }
+        },
+        legend: {
+            // data:['使用中','空闲中','低电量','离线','待维修']
+            data:['online','offline','charging']
+        },
+        // toolbox: {
+        //     feature: {
+        //         saveAsImage: {}
+        //     }
+        // },
+        grid: {
+            // top: '15%',
+            left: '3%',
+            right: '4%',
+            bottom: '50px',
+            containLabel: true
+        },
+        xAxis : [
+            {
+                type : 'category',
+                boundaryGap : false,
+                data : new Array(),
+                // data : ['','','','','','','', '']
+            }
+        ],
+        yAxis : [
+            {
+                type : 'value'
+            }
+        ],
+        dataZoom: [
+            {   // 这个dataZoom组件，默认控制x轴。
+                type: 'slider', // 这个 dataZoom 组件是 slider 型 dataZoom 组件
+                start: 50,      // 左边在 10% 的位置。
+                end: 100         // 右边在 60% 的位置。
+            },
+            {   // 这个dataZoom组件，也控制x轴。
+                type: 'inside', // 这个 dataZoom 组件是 inside 型 dataZoom 组件
+                start: 50,      // 左边在 10% 的位置。
+                end: 100         // 右边在 60% 的位置。
+            }
+        ],
+        series : [
+            {
+                name:'online',
+                type:'line',
+                stack: '总量',
+                areaStyle: {},
+                data : new Array(),
+                // data:[120, 132, 101, 134, 90, 230, 210,1000]
+            },
+            {
+                name:'offline',
+                type:'line',
+                stack: '总量',
+                areaStyle: {},
+                data : new Array(),
+                // data:[220, 182, 191, 234, 290, 330, 310, 1000]
+            },
+            {
+                name:'charging',
+                type:'line',
+                stack: '总量',
+                areaStyle: {},
+                data : new Array(),
+                // data:[150, 232, 201, 154, 190, 330, 410, 1000]
+            },
+            // {
+            //     name:'离线',
+            //     type:'line',
+            //     stack: '总量',
+            //     areaStyle: {normal: {}},
+            //     data:[320, 332, 301, 334, 390, 330, 320]
+            // },
+            // {
+            //     name:'待维修',
+            //     type:'line',
+            //     stack: '总量',
+            //     label: {
+            //         normal: {
+            //             show: true,
+            //             position: 'top'
+            //         }
+            //     },
+            //     areaStyle: {normal: {}},
+            //     data:[820, 932, 901, 934, 1290, 1330, 1320]
+            // }
+        ]
+    };
+    ;
+
+    initialStack();
+    if (optionStack && typeof optionStack === "object") {
+        myChartStack.setOption(optionStack, true);
+    }
+
+// 层叠图 结束
+
+
+    window.onresize = function () {
+        myChartPie.resize();
+        myChartStack.resize();
+        myChartGuage.resize();
+        myChartLine.resize();
+    }
+
+
+    // <!-- 绘制地图 -->
+
     // var data_info = [[121.447176,31.033731],[135.447176,35.033731],[115.447176,35.033731]];
     var data_info = [[121.447176,31.033780,"car1"],[121.445009,31.030880,"car2"],[121.444695,31.027980,"car2"]];
     function eConsole(param) {
@@ -758,41 +895,10 @@
             addMouseHandler(content, marker, i);
         }
     }
+
+
+
+    // 启动查询
+    setInterval(function(){requestCurrentTypeNum()}, 1000);
 </script>
-
-<!-- 全局变量 当前激活脚本 状态信息 -->
-
-<!-- 单车查询 -->
-
-<!-- 默认查询 -->
-
-<!-- 背景查询 -->
-
-<!-- 回调函数 -->  
-<script>
-    // <!-- 搜索点击回调函数 -->
-    function onClickSearchButton(){
-        var requestType = document.getElementById('select');
-        var requestTypeValue = requestType.options[requestType.selectedIndex].value;
-        var requestId = document.getElementById('search-select');
-        var requestIdValue = requestId.options[requestId.selectedIndex].value;
-        alert(requestIdValue);
-        alert(requestTypeValue);
-    }
-
-    // <!-- 地图覆盖物点击回调函数 -->
-    function onClickOverlay(targetId){
-        var requestId = document.getElementById('search-select');
-        requestId.options[requestId.selectedIndex].selected = false;
-        for(var i = 0; i < requestId.options.length; ++i){
-            alert(requestId.options[i].value);
-            if(requestId.options[i].value == targetId){
-                requestId.options[i].selected = true;
-                break;
-            }
-        }
-        // onClickSearchButton()
-        // alert(targetId);
-    }
-
-</script>
+          
