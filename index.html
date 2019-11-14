@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" style="height: 100%">
     <head>
+            <meta http-equiv="Access-Control-Allow-Origin" content="*" />
         <!-- <meta http-equiv="refresh" content="10"> -->
         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts-gl/dist/echarts-gl.min.js"></script>
@@ -10,7 +11,7 @@
        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts/map/js/world.js"></script>
        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts/dist/extension/bmap.min.js"></script>
        <script type="text/javascript" src="http://api.map.baidu.com/api?v=3.0&ak=2GCVEjjkYGGiVjTR1EoENtf2SNzYaiRI"></script>
-       <script src="theme/dark.js"></script>
+       <!-- <script src="theme/dark.js"></script> -->
        <!-- button -->
        <!-- <link rel="shortcut icon" href="../favicon.ico"> 
        <link rel="stylesheet" type="text/css" href="css/default.css" />
@@ -35,9 +36,9 @@
         <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.12/dist/js/i18n/defaults-*.min.js"></script> -->
 
         <!-- semantic-ui -->
-        <link href="./semantic.min.css" rel="stylesheet" type="text/css">
+        <link href="semantic.min.css" rel="stylesheet" type="text/css">
         <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-        <script src="./semantic.min.js"></script>
+        <script src="semantic.min.js"></script>
 
        <style type="text/css">
         div#mapDiv {
@@ -63,7 +64,7 @@
         
     </head>
 
-    <body style="height: 100%; margin: 0" background="./img/bg0.jpg">
+    <body style="height: 100%; margin: 0" >
         <!-- <div id="Echarts"></div> -->
         <div id="mapDiv"></div>
         <div id="optionList">
@@ -372,12 +373,12 @@
     var curTraceStamp;
 
     // 不同状态下的覆盖物图标
-    var iconOnline = new BMap.Icon("./img/icon-green-small.gif", new BMap.Size(25, 25));
-    var iconOffline = new BMap.Icon("./img/icon-pink-small.gif", new BMap.Size(25, 25));
-    var iconCharging = new BMap.Icon("./img/icon-blue-small.gif", new BMap.Size(25, 25));
+    var iconOnline = new BMap.Icon("icon-green-small.gif", new BMap.Size(25, 25));
+    var iconOffline = new BMap.Icon("icon-pink-small.gif", new BMap.Size(25, 25));
+    var iconCharging = new BMap.Icon("icon-blue-small.gif", new BMap.Size(25, 25));
 
-    var iconStart = new BMap.Icon("./img/start.png", new BMap.Size(25, 25));
-    var iconEnd = new BMap.Icon("./img/final.png", new BMap.Size(25, 25));
+    var iconStart = new BMap.Icon("start.png", new BMap.Size(25, 25));
+    var iconEnd = new BMap.Icon("final.png", new BMap.Size(25, 25));
 
     var iconArr = new Array();
     iconArr.push(iconOnline,iconOffline, iconCharging);
@@ -463,6 +464,7 @@
 
     // 初始化层叠图
     function initialStack(){
+        
         stack_online = new Array();
         stack_offline = new Array();
         stack_charging = new Array();
@@ -483,6 +485,43 @@
     }
 
     function requestCurrentTypeNum(){
+        // $.ajax({
+        //     url: 'http://202.120.60.31:3000/query/history/status', //请求的url
+        //     type: 'get', //请求的方式
+        //     data: 'limit=100',
+        //     error: function (data) {
+        //         alert('requestCurrentTypeNum请求失败');
+        //     },
+        //     success: function (data) {
+        //         var cur_online = 0;
+        //         var cur_offline = 0;
+        //         var cur_charging = 0;
+        //         for(var i in data){
+        //             if(data[i]['latest_info']['vehicle_operating_mode'] == '休眠'){
+        //                 ++cur_offline;
+        //             }else if(data[i]['latest_info']['vehicle_operating_mode'] == '行驶'){
+        //                 ++cur_online;
+        //             }else if(data[i]['latest_info']['vehicle_operating_mode'] == '上电'){
+        //                 ++cur_charging;
+        //             }
+        //         }
+        //         var option = myChartPie.getOption();
+        //         option.series[0].data[0]['value'] = cur_online;
+        //         option.series[0].data[1]['value'] = cur_offline;
+        //         option.series[0].data[2]['value'] = cur_charging;
+        //         myChartPie.setOption(option);
+        //     }
+            
+        // });
+
+        /**
+         * stack初始化方法，UTC时间->毫秒数
+         * 从此刻开始向前追溯一定的距离，每1000ms为array中的一个单位
+         * 针对每辆car
+         *  针对每个时间单为
+         *      遍历info数组，知道到时间不大于当前单位的那个元素，填入
+         * 
+         */
         var cur_online = getRandomData(100);
         var cur_offline = getRandomData(50);
         var cur_charging = getRandomData(50);
