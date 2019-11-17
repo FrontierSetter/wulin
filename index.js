@@ -72,7 +72,7 @@ router.get('/query/single/info', query.get_single_info);
 
 /**请求单车某项历史记录
  * 参数 car_VIN = "LXXXXXXXXXXXXXXXXX"
- * 参数 type = {speed, drive_motor_rpm, drive_motor_temperature ...}
+ * 参数 type = {velocity, drive_motor_rpm, drive_motor_temperature ...}
  * 参数 length = [1,1000]
  * res = [{
  *      create_time = ...
