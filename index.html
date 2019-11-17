@@ -482,6 +482,10 @@
 // <!-- 单车查询 -->
     function do_singleCarTrace(){
         console.log('do_singleCarTrace');
+        if(singleCarTranslatedPoints.length == 0){
+            alert('no history trace');
+            return;
+        }
         // console.log(singleCarTranslatedPoints.length);
         curOldOverlayHandler = new BMap.Marker(singleCarTranslatedPoints[0]);
         curOldOverlayHandler.setIcon(iconStart);
@@ -557,13 +561,26 @@
         map.centerAndZoom(centerPoint,mapZoom);
     }
 
+    function rawPointValid(lon, lat){
+        if (lon == null || lat == null) {
+            return false;
+        }
+        if (lon > 124 || lon < 118 || lat > 35 || lat < 27) {
+            return false;
+        }
+        return true;
+    }
+
     function filterTrace(data){
         console.log('filterTrace');
         for(var i = 0; i < data.length; ++i){
-            if (data[i]['longitude'] == null || data[i]['latitude'] == null) {
-                continue;
-            }
-            if (data[i]['longitude'] > 124 || data[i]['longitude'] < 118 || data[i]['latitude'] > 35 || data[i]['latitude'] < 27) {
+            // if (data[i]['longitude'] == null || data[i]['latitude'] == null) {
+            //     continue;
+            // }
+            // if (data[i]['longitude'] > 124 || data[i]['longitude'] < 118 || data[i]['latitude'] > 35 || data[i]['latitude'] < 27) {
+            //     continue;
+            // }
+            if(!rawPointValid(data[i]['longitude'], data[i]['latitude'])){
                 continue;
             }
 
@@ -662,11 +679,44 @@
     }
 
     function requestSingleCar(){
-        optionGuage.series[0].data[0].value = (Math.random()*60).toFixed(2) - 0;
-        optionGuage.series[1].data[0].value = (Math.random()*7).toFixed(2) - 0;
-        optionGuage.series[2].data[0].value = (Math.random()*2).toFixed(2) - 0;
-        optionGuage.series[3].data[0].value = (Math.random()*2).toFixed(2) - 0;
-        myChartGuage.setOption(optionGuage,true);
+        $.ajax({
+            url: 'http://202.120.60.31:3000/query/single/info', //请求的url
+            type: 'get', //请求的方式
+            data: 'car_VIN='+curCarVin,
+            error: function (data) {
+                console.log('requestSingleCar请求失败');
+            },
+            success: function (data) {
+                console.log('requestSingleCar success');
+
+                data = data[0];
+
+                if(rawPointValid(data['longitude'], data['latitude'])){
+                    var convertor = new BMap.Convertor();
+                    var pointArr = [];
+                    pointArr.push(new BMap.Point(data['longitude'], data['latitude']));
+                    convertor.translate(pointArr, 1, 5, singleQueryTranslateCallBack);
+                }else{
+                    // map.removeOverlay(curNewOverlayHandler);
+                    // map.addOverlay(curNewOverlayHandler);    
+                }
+
+                var curOption = myChartGuage.getOption();
+                curOption.series[0].data[0].value = data['velocity'];
+                curOption.series[1].data[0].value = data['drive_motor_rpm']/1000.0;
+                curOption.series[2].data[0].value = data['residual_energy'];
+                curOption.series[3].data[0].value = data['drive_motor_temperature'];
+                myChartGuage.setOption(curOption,true);
+
+                console.log('velocity: '+data['velocity']);
+                console.log('drive_motor_rpm: '+data['drive_motor_rpm']);
+                console.log('residual_energy: '+data['residual_energy']);
+                console.log('drive_motor_temperature: '+data['drive_motor_temperature']);
+
+            }
+        });
+
+        
     }
 
 
@@ -1038,10 +1088,16 @@
         option.series[3].data[0].value = 0;
         myChartGuage.setOption(optionGuage);
 
-        option = myChartLine.getOption();
-        data=[];
-        option.series[0].data = data;
-        myChartLine.setOption(option);
+        dataLine=[];
+
+        myChartLine.setOption({
+            title:{
+                text:' '
+            },
+            series: [{
+                data: dataLine
+            }]
+        });
 
         curSingleMode = false;
         console.log('backtoground cursinglemode='+curSingleMode);
@@ -1254,6 +1310,45 @@
             }
         }
     }
+
+    function singleQueryTranslateCallBack(data){
+        if(data.status != 0){
+            console.log('translateCallBackTrace');
+        }else{
+            if(singleCarTranslatedPoints.length == 0){
+                singleCarTranslatedPoints.push(data.points[0]);
+
+                curOldOverlayHandler = new BMap.Marker(singleCarTranslatedPoints[0]);
+                curOldOverlayHandler.setIcon(iconStart);
+                map.addOverlay(curOldOverlayHandler)
+                curOldOverlayHandler.setAnimation(BMAP_ANIMATION_DROP);//跳动的动画
+
+                curNewOverlayHandler = new BMap.Marker(singleCarTranslatedPoints[singleCarTranslatedPoints.length-1]);
+                curNewOverlayHandler.setIcon(iconEnd);
+                var content = curCarVin;
+                map.addOverlay(curNewOverlayHandler)
+                curNewOverlayHandler.setAnimation(BMAP_ANIMATION_BOUNCE);//跳动的动画
+                addMouseHandler(content, curNewOverlayHandler);
+            }else if(!((data.points[0]).equals(singleCarTranslatedPoints[singleCarTranslatedPoints.length-1]))){
+                map.removeOverlay(curNewOverlayHandler);
+
+                curNewOverlayHandler = new BMap.Marker(data.points[0]);
+                curNewOverlayHandler.setIcon(iconEnd);
+                var content = curCarVin;
+                map.addOverlay(curNewOverlayHandler)
+                curNewOverlayHandler.setAnimation(BMAP_ANIMATION_BOUNCE);//跳动的动画
+                addMouseHandler(content, curNewOverlayHandler);
+
+                var polyline = new BMap.Polyline([singleCarTranslatedPoints[singleCarTranslatedPoints.length-1], data.points[0]], { strokeColor: "#18a45b", strokeWeight: 5, strokeOpacity: 0.8 });
+                map.addOverlay(polyline);
+
+                singleCarTranslatedPoints.push(data.points[0]);
+                
+            }
+
+
+        }
+    }
 // <!-- 绘图 -->
 // <!-- 右侧栏仪表盘 开始 -->
 
@@ -1355,7 +1450,7 @@ var domGuage = document.getElementById("guage");
                     color: '#eee',
                     rich: {}
                 },
-                data:[{value: 40, name: 'km/h'}]
+                data:[{value: 0, name: 'km/h'}]
             },
             {
                 name: '转速',
@@ -1395,15 +1490,15 @@ var domGuage = document.getElementById("guage");
                     fontWeight: 'bolder',
                     fontSize:'10%',
                 },
-                data:[{value: 1.5, name: 'x1000 r/min'}]
+                data:[{value: 0, name: 'x1000 r/min'}]
             },
             {
-                name: '油表',
+                name: '电量',
                 type: 'gauge',
                 center: ['80%', '40%'],    // 默认全局居中
                 radius: '25%',
                 min: 0,
-                max: 2,
+                max: 100,
                 startAngle: 135,
                 endAngle: 45,
                 splitNumber: 2,
@@ -1443,15 +1538,15 @@ var domGuage = document.getElementById("guage");
                 detail : {
                     show: false
                 },
-                data:[{value: 0.5, name: 'gas'}]
+                data:[{value: 0, name: '%'}]
             },
             {
-                name: '水表',
+                name: '温度',
                 type: 'gauge',
                 center : ['80%', '58%'],    // 默认全局居中
                 radius : '25%',
                 min: 0,
-                max: 2,
+                max: 80,
                 startAngle: 315,
                 endAngle: 225,
                 splitNumber: 2,
@@ -1487,7 +1582,7 @@ var domGuage = document.getElementById("guage");
                 detail: {
                     show: false
                 },
-                data:[{value: 0.5, name: 'gas'}]
+                data:[{value: 0, name: '°C'}]
             }
         ]
     };
