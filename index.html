@@ -228,7 +228,7 @@
                 </div>  
             </div>
             <div id="detailLine" style="height: 35%; width: 100%; float: left;">
-                    <div id="dynamicLine" style="height: 130%; width: 100%; float: left;"></div>
+                    <div id="dynamicLine" style="height: 110%; width: 100%; float: left;"></div>
             </div>
 
             <div id="detailPanel" style="height: 45%; width: 100%; float: left;">
@@ -538,6 +538,7 @@
         //     strokeOpacity: 0.8,//折线的透明度，取值范围0 - 1
         //     strokeColor:"#18a45b" //折线颜色
         // });
+
         var polyline = new BMap.Polyline(singleCarTranslatedPoints, { strokeColor: "#18a45b", strokeWeight: 5, strokeOpacity: 0.8 });
         map.addOverlay(polyline);
 
@@ -611,16 +612,52 @@
     }
 
     function requestSingleCarHistory(){
-        for (var i = 0; i < 5; i++) {
-            data.shift();
-            data.push(randomData());
-        }
-    
-        myChartLine.setOption({
-            series: [{
-                data: data
-            }]
+        $.ajax({
+            url: 'http://202.120.60.31:3000/query/single/history', //请求的url
+            type: 'get', //请求的方式
+            data: 'car_VIN='+curCarVin+'&type='+curCarType+'&limit=5000000',
+            error: function (data) {
+                console.log('initialStack请求失败');
+            },
+            success: function (data) {
+                console.log('requestSingleCarHistory success');
+                dataLine = new Array();
+
+                for(var i = 0; i < data.length; ++i){
+                    var d = new Date();
+                    d.setTime(Date.parse(data[i]['create_time']));
+                    dataLine.push({
+                        name: d.toString(),
+                        // [d.getFullYear(), d.getMonth() + 1, d.getDate()].join('/')
+                        value: [
+                            d.getTime(),
+                            data[i][curCarType]
+                        ]
+                    })
+                }
+                console.log('requestSingleCarHistory: '+dataLine.length+' '+data.length);
+
+                myChartLine.setOption({
+                    title:{
+                        text:curCarType+' of '+curCarVin
+                    },
+                    series: [{
+                        data: dataLine
+                    }]
+                });
+            }
         });
+
+        // for (var i = 0; i < 5; i++) {
+        //     data.shift();
+        //     data.push(randomData());
+        // }
+    
+        // myChartLine.setOption({
+        //     series: [{
+        //         data: data
+        //     }]
+        // });
         
     }
 
@@ -975,7 +1012,8 @@
             curCarVin = requestIdValue;
             curCarType = requestTypeValue;
             requestSingleCarTrace();
-            map.addEventListener('click', function(){console.log('EventListener trigged')});
+            requestSingleCarHistory();
+            // map.addEventListener('click', function(){console.log('EventListener trigged')});
             curSingleMode = true;
             mapLocked = false;
             console.log('request History finish'+ curSingleMode);
@@ -1217,92 +1255,10 @@
         }
     }
 // <!-- 绘图 -->
-// <!-- 右侧栏折线图 开始 -->
-
-    var domLine = document.getElementById("dynamicLine");
-    var myChartLine = echarts.init(domLine);
-    var app = {};
-    optionLine = null;
-    function randomData() {
-        now = new Date(+now + oneDay);
-        value = value + Math.random() * 21 - 10;
-        return {
-            name: now.toString(),
-            value: [
-                [now.getFullYear(), now.getMonth() + 1, now.getDate()].join('/'),
-                Math.round(value)
-            ]
-        }
-    }
-    
-    var data = new Array();
-    var now = +new Date(1997, 9, 3);
-    var oneDay = 24 * 3600 * 1000;
-    var value = Math.random() * 1000;
-    // for (var i = 0; i < 1000; i++) {
-    //     data.push(randomData());
-    // }
-    
-    optionLine = {
-        title: {
-            text: '历史速度'
-        },
-        tooltip: {
-            trigger: 'axis',
-            formatter: function (params) {
-                params = params[0];
-                var date = new Date(params.name);
-                return date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear() + ' : ' + params.value[1];
-            },
-            axisPointer: {
-                animation: false
-            }
-        },
-        xAxis: {
-            type: 'time',
-            splitLine: {
-                show: false
-            }
-        },
-        yAxis: {
-            type: 'value',
-            boundaryGap: [0, '100%'],
-            splitLine: {
-                show: false
-            }
-        },
-        series: [{
-            name: '模拟数据',
-            type: 'line',
-            showSymbol: false,
-            hoverAnimation: false,
-            data: data
-        }]
-    };
-    
-    // setInterval(function () {
-    
-    //     for (var i = 0; i < 5; i++) {
-    //         data.shift();
-    //         data.push(randomData());
-    //     }
-    
-    //     myChartLine.setOption({
-    //         series: [{
-    //             data: data
-    //         }]
-    //     });
-    // }, 1000);;
-    if (optionLine && typeof optionLine === "object") {
-        myChartLine.setOption(optionLine, true);
-    }
-
-// <!-- 右侧栏折线图 结束 -->
-
 // <!-- 右侧栏仪表盘 开始 -->
 
 
-    var domGuage = document.getElementById("guage");
+var domGuage = document.getElementById("guage");
     var myChartGuage = echarts.init(domGuage);
     var app = {};
     optionGuage = null;
@@ -1546,6 +1502,109 @@
     if (optionGuage && typeof optionGuage === "object") {
         myChartGuage.setOption(optionGuage, true);
     }
+// <!-- 右侧栏仪表盘 结束 -->
+
+// <!-- 右侧栏折线图 开始 -->
+
+    var domLine = document.getElementById("dynamicLine");
+    var myChartLine = echarts.init(domLine);
+    var app = {};
+    optionLine = null;
+    function randomData() {
+        now = new Date(+now + oneDay);
+        value = value + Math.random() * 21 - 10;
+        return {
+            name: now.toString(),
+            value: [
+                [now.getFullYear(), now.getMonth() + 1, now.getDate()].join('/'),
+                Math.round(value)
+            ]
+        }
+    }
+    
+    var dataLine = new Array();
+    var now = +new Date(1997, 9, 3);
+    var oneDay = 24 * 3600 * 1000;
+    var value = Math.random() * 1000;
+    // for (var i = 0; i < 1000; i++) {
+    //     data.push(randomData());
+    // }
+    
+    optionLine = {
+        title: {
+            text: '历史速度'
+        },
+        tooltip: {
+            trigger: 'axis',
+            formatter: function (params) {
+                params = params[0];
+                // var date = new Date(params.name);
+                var data_tem = params.name.split(' ');
+                return data_tem[3]+'-'+data_tem[1]+'-'+data_tem[2]+' '+data_tem[4]+' '+params.value[1]; 
+                // return date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear() + ' : ' + params.value[1];
+                // return data.getFullYear()+'-'+(date.getMonth() + 1)+'-'+date.getDate()+' '+date.getHours()+':'+date.getMinutes()+':'+date.getSeconds()+'.'+date.getMinutes()+' '+params.value[1];
+            },
+            axisPointer: {
+                animation: false
+            }
+        },
+        xAxis: {
+            type: 'time',
+            splitLine: {
+                show: false
+            }
+        },
+        yAxis: {
+            type: 'value',
+            boundaryGap: [0, '100%'],
+            splitLine: {
+                show: false
+            }
+        },
+        dataZoom: [
+            {   // 这个dataZoom组件，默认控制x轴。
+                type: 'slider', // 这个 dataZoom 组件是 slider 型 dataZoom 组件
+                start: 0,      // 左边在 10% 的位置。
+                end: 100,         // 右边在 60% 的位置。
+                height: '5%',
+                // zlevel:3
+                // minSpan:8,
+            },
+            {   // 这个dataZoom组件，也控制x轴。
+                type: 'inside', // 这个 dataZoom 组件是 inside 型 dataZoom 组件
+                start: 0,      // 左边在 10% 的位置。
+                end: 100         // 右边在 60% 的位置。
+            }
+        ],
+        series: [{
+            name: '数据',
+            type: 'line',
+            showSymbol: false,
+            hoverAnimation: false,
+            data: dataLine
+        }]
+    };
+    
+    // setInterval(function () {
+    
+    //     for (var i = 0; i < 5; i++) {
+    //         data.shift();
+    //         data.push(randomData());
+    //     }
+    
+    //     myChartLine.setOption({
+    //         series: [{
+    //             data: data
+    //         }]
+    //     });
+    // }, 1000);;
+    if (optionLine && typeof optionLine === "object") {
+        myChartLine.setOption(optionLine, true);
+    }
+
+// <!-- 右侧栏折线图 结束 -->
+
+
 
 
 // <!-- 底部栏 -->
@@ -1932,7 +1991,7 @@
             backgroundRequest();
         }else{
             console.log('request single');
-            requestSingleCarHistory();
+            // requestSingleCarHistory();
             requestSingleCar();
         }
     }, 977);
