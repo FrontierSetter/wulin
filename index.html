@@ -242,19 +242,89 @@
             <!-- <div id="Heatmap"" style="height: 100%; width: 50%; float: left;"></div> -->
             <div id="Stack" style="height: 100%; width: 50%; float: left;"></div>
             <div id="Board" style="height: 100%; width: 25%; float: left;">
-                <div style="height: 40%; float: left; padding-right: 10%;">
+                <div id="right_bottom_coner_default" style="height: 40%; float: left; padding-right: 10%;">
                     <p id="time1" style="margin-left: 5%; margin-top: 5%;">item1</p>
                     <iframe id="fancybox-frame" name="fancybox-frame1573219207283" frameborder="0" scrolling="no" hspace="0"  src="http://i.tianqi.com/index.php?c=code&a=getcode&id=35&h=55&w=200&py=minhang"></iframe>
                 
                 </div>                    
-                <div style="height: 60%; width: 100%; padding-left:5%; float: left;">
-                    <table border="0" style="font: size 200px; height: 100%; width: 70%;">
-                        <tr><td> </td></tr>
-                        <tr><td> </td></tr>
-                        <tr><td> </td></tr>
-                        <tr><td> </td></tr>
-
-                    </table>
+                <div id="right_bottom_coner_detail" style="height: 100%; width: 100%; padding-left:5%; float: left; overflow:auto">
+                        <div class="ui secondary vertical pointing menu" style="width: 100%">
+                            <a class="active item">
+                                车辆详情
+                            </a>
+                            <a id="detail_car_VIN" class="active item">
+                                
+                            </a>
+                            <a id="detail_longitude" class="item">
+                                
+                            </a>
+                            <a id="detail_latitude" class="item">
+                                 
+                            </a>
+                            <a id="detail_vehicle_operating_mode" class="item">
+                                 
+                            </a>
+                            <a id="detail_brake_pedal_status" class="item">
+                                 
+                            </a>
+                            <a id="detail_accelerator_pedal_stroke" class="item">
+                                 
+                            </a>
+                            <a id="detail_gear_position" class="item">
+                                 
+                            </a>
+                            <a id="detail_key_status" class="item">
+                                 
+                            </a>
+                            <a id="detail_driving_mode" class="item">
+                                 
+                            </a>
+                            <a id="detail_velocity" class="item">
+                                 
+                            </a>
+                            <a id="detail_motor_status" class="item">
+                                 
+                            </a>
+                            <a id="detail_motor_torque" class="item">
+                                 
+                            </a>
+                            <a id="detail_drive_motor_rpm" class="item">
+                                 
+                            </a>
+                            <a id="detail_motor_controller_current" class="item">
+                                 
+                            </a>
+                            <a id="detail_motor_controller_voltage" class="item">
+                                 
+                            </a>
+                            <a id="detail_drive_motor_temperature" class="item">
+                                 
+                            </a>
+                            <a id="detail_motor_controller_temperature" class="item">
+                                 
+                            </a>
+                            <a id="detail_high_voltage_battery_current" class="item">
+                                 
+                            </a>
+                            <a id="detail_total_battery_voltage" class="item">
+                                 
+                            </a>
+                            <a id="detail_insulation_resistance_value" class="item">
+                                 
+                            </a>
+                            <a id="detail_residual_energy" class="item">
+                                 
+                            </a>
+                            <a id="detail_max_single_voltage" class="item">
+                                 
+                            </a>
+                            <a id="detail_min_single_voltage" class="item">
+                                 
+                            </a>
+                            <a id="detail_cumulative_mileage" class="item">
+                                 
+                            </a>
+                        </div>
                 </div>
 
                 </div>
@@ -695,8 +765,18 @@
             },
             success: function (data) {
                 console.log('requestSingleCar success');
+                if(!curSingleMode) return;
 
+                if(data.length == 0) return;
                 data = data[0];
+
+                // document.getElementById("detail_car").innerHTML = data;
+                for(var key in data){
+                    console.log("detail_"+key);
+                    console.log(''+key+ ' : '+data[key]);
+                    var element = document.getElementById('detail_'+key)
+                    if(element != null) element.innerHTML = ''+key+ ' : '+data[key];
+                }
 
                 if(rawPointValid(data['longitude'], data['latitude'])){
                     var convertor = new BMap.Convertor();
@@ -1108,11 +1188,15 @@
 
     // <!-- 进入单车模式的实际执行函数 -->
     function do_initRequestSingleCar(requestTypeValue, requestIdValue){
-        data = [];
-        for (var i = 0; i < 1000; i++) {
-            data.push(randomData());
-        }
+        // data = [];
+        // for (var i = 0; i < 1000; i++) {
+        //     data.push(randomData());
+        // }
         console.log('single start');
+        document.getElementById("right_bottom_coner_default").style.display="none";//隐藏
+        document.getElementById("right_bottom_coner_detail").style.display="";//隐藏
+
+
         // if(requestIdValue != 'LK6ADCE28JB008253') console.log('no data yet');
         // else{
             mapLocked = true;
@@ -1133,6 +1217,7 @@
     // 进入单车模式后增加的地图回调函数 用于返回到默认模式
     function backToBackground(){
         console.log("evoke");
+
         // map.removeEventListener("click", backToBackground);
         for(var i = 0; i < needAnimation.length; ++i){
             needAnimation[i] = true;
@@ -1158,12 +1243,15 @@
         });
 
         curSingleMode = false;
+        document.getElementById("right_bottom_coner_detail").style.display="none";//隐藏
+        document.getElementById("right_bottom_coner_default").style.display="";
+
         console.log('backtoground cursinglemode='+curSingleMode);
     }
 
     // 百度地图坐标转换回调函数
     function translateCallBackOnline(data){
-        console.log('onlineCallback');
+        // console.log('onlineCallback');
         if(data.status != 0){
             console.log('translateCallBackOnline错误');
         }else{
@@ -2147,11 +2235,11 @@ var domGuage = document.getElementById("guage");
 
         if(!needUpdateMap || mapLocked) return;
         if(!curSingleMode){
-            console.log('request background');
+            // console.log('request background');
             map.clearOverlays();
             backgroundRequest();
         }else{
-            console.log('request single');
+            // console.log('request single');
             // requestSingleCarHistory();
             requestSingleCar();
         }
