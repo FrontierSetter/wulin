@@ -252,76 +252,76 @@
                             <a class="active item">
                                 车辆详情
                             </a>
-                            <a id="detail_car_VIN" class="active item">
+                            <a id="detail_car_VIN" class="active item" href="javascript:void(0);" onclick="setSingleCarType('car_VIN')">
                                 
                             </a>
-                            <a id="detail_longitude" class="item">
+                            <a id="detail_longitude" class="item" href="javascript:void(0);" onclick="setSingleCarType('longitude')">
                                 
                             </a>
-                            <a id="detail_latitude" class="item">
+                            <a id="detail_latitude" class="item" href="javascript:void(0);" onclick="setSingleCarType('latitude')">
                                  
                             </a>
-                            <a id="detail_vehicle_operating_mode" class="item">
+                            <a id="detail_vehicle_operating_mode" class="item" href="javascript:void(0);" onclick="setSingleCarType('vehicle_operating_mode')">
                                  
                             </a>
-                            <a id="detail_brake_pedal_status" class="item">
+                            <a id="detail_brake_pedal_status" class="item" href="javascript:void(0);" onclick="setSingleCarType('brake_pedal_status')">
                                  
                             </a>
-                            <a id="detail_accelerator_pedal_stroke" class="item">
+                            <a id="detail_accelerator_pedal_stroke" class="item" href="javascript:void(0);" onclick="setSingleCarType('accelerator_pedal_stroke')">
                                  
                             </a>
-                            <a id="detail_gear_position" class="item">
+                            <a id="detail_gear_position" class="item" href="javascript:void(0);" onclick="setSingleCarType('gear_position')">
                                  
                             </a>
-                            <a id="detail_key_status" class="item">
+                            <a id="detail_key_status" class="item" href="javascript:void(0);" onclick="setSingleCarType('key_status')">
                                  
                             </a>
-                            <a id="detail_driving_mode" class="item">
+                            <a id="detail_driving_mode" class="item" href="javascript:void(0);" onclick="setSingleCarType('driving_mode')">
                                  
                             </a>
-                            <a id="detail_velocity" class="item">
+                            <a id="detail_velocity" class="item" href="javascript:void(0);" onclick="setSingleCarType('velocity')">
                                  
                             </a>
-                            <a id="detail_motor_status" class="item">
+                            <a id="detail_motor_status" class="item" href="javascript:void(0);" onclick="setSingleCarType('motor_status')">
                                  
                             </a>
-                            <a id="detail_motor_torque" class="item">
+                            <a id="detail_motor_torque" class="item" href="javascript:void(0);" onclick="setSingleCarType('motor_torque')">
                                  
                             </a>
-                            <a id="detail_drive_motor_rpm" class="item">
+                            <a id="detail_drive_motor_rpm" class="item" href="javascript:void(0);" onclick="setSingleCarType('drive_motor_rpm')">
                                  
                             </a>
-                            <a id="detail_motor_controller_current" class="item">
+                            <a id="detail_motor_controller_current" class="item" href="javascript:void(0);" onclick="setSingleCarType('motor_controller_current')">
                                  
                             </a>
-                            <a id="detail_motor_controller_voltage" class="item">
+                            <a id="detail_motor_controller_voltage" class="item" href="javascript:void(0);" onclick="setSingleCarType('motor_controller_voltage')">
                                  
                             </a>
-                            <a id="detail_drive_motor_temperature" class="item">
+                            <a id="detail_drive_motor_temperature" class="item" href="javascript:void(0);" onclick="setSingleCarType('drive_motor_temperature')">
                                  
                             </a>
-                            <a id="detail_motor_controller_temperature" class="item">
+                            <a id="detail_motor_controller_temperature" class="item" href="javascript:void(0);" onclick="setSingleCarType('motor_controller_temperature')">
                                  
                             </a>
-                            <a id="detail_high_voltage_battery_current" class="item">
+                            <a id="detail_high_voltage_battery_current" class="item" href="javascript:void(0);" onclick="setSingleCarType('high_voltage_battery_current')">
                                  
                             </a>
-                            <a id="detail_total_battery_voltage" class="item">
+                            <a id="detail_total_battery_voltage" class="item" href="javascript:void(0);" onclick="setSingleCarType('total_battery_voltage')">
                                  
                             </a>
-                            <a id="detail_insulation_resistance_value" class="item">
+                            <a id="detail_insulation_resistance_value" class="item" href="javascript:void(0);" onclick="setSingleCarType('insulation_resistance_value')">
                                  
                             </a>
-                            <a id="detail_residual_energy" class="item">
+                            <a id="detail_residual_energy" class="item" href="javascript:void(0);" onclick="setSingleCarType('residual_energy')">
                                  
                             </a>
-                            <a id="detail_max_single_voltage" class="item">
+                            <a id="detail_max_single_voltage" class="item" href="javascript:void(0);" onclick="setSingleCarType('max_single_voltage')">
                                  
                             </a>
-                            <a id="detail_min_single_voltage" class="item">
+                            <a id="detail_min_single_voltage" class="item" href="javascript:void(0);" onclick="setSingleCarType('min_single_voltage')">
                                  
                             </a>
-                            <a id="detail_cumulative_mileage" class="item">
+                            <a id="detail_cumulative_mileage" class="item" href="javascript:void(0);" onclick="setSingleCarType('cumulative_mileage')">
                                  
                             </a>
                         </div>
@@ -703,6 +703,17 @@
             
         });
 
+    }
+
+    function setSingleCarType(typeName){
+        if(typeName == curCarType){
+            return;
+        }else{
+            mapLocked = true;
+            curCarType = typeName;
+            requestSingleCarHistory();
+            mapLocked = false;
+        }
     }
 
     function requestSingleCarHistory(){
