@@ -76,9 +76,9 @@
     </head>
 
     <body>
-    <div class="ui left vertical menu sidebar">
-        <a class="item">
-            Item 1
+    <div id="mySidebar" class="ui right inverted vertical menu sidebar">
+        <a class="item" href="javascript:void(0);" onclick="window.location.reload();">
+            刷新
         </a>
         <a class="item">
             Item 2
@@ -267,7 +267,10 @@
                 <div id="right_bottom_coner_default" style="height: 40%; float: left; padding-right: 10%;">
                     <p id="time1" style="margin-left: 5%; margin-top: 5%;">item1</p>
                     <iframe id="fancybox-frame" name="fancybox-frame1573219207283" frameborder="0" scrolling="no" hspace="0"  src="http://i.tianqi.com/index.php?c=code&a=getcode&id=35&h=55&w=200&py=minhang"></iframe>
-                
+                    <!-- <div style="float: right" href="javascript:void(0);" onclick="$('.ui.sidebar').sidebar('toggle');"><i class="huge angle left icon" ></i></div> -->
+                    <button class="ui button"href="javascript:void(0);" onclick="$('.ui.sidebar').sidebar('toggle');">
+                            <i class="angle left icon" ></i>
+                          </button>
                 </div>                    
                 <div id="right_bottom_coner_detail" style="height: 100%; width: 100%; padding-left:5%; float: left; overflow:auto">
                         <div class="ui secondary vertical pointing menu" style="width: 100%">
@@ -359,6 +362,8 @@
                         document.getElementById("time1").innerHTML = "&nbsp"+"&nbsp"+c+"&nbsp"+b;
                         }
                     setInterval(function() {mytime()},1000);
+
+                    
                 </script>
 
             </div>
