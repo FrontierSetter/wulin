@@ -12,6 +12,8 @@
        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts/dist/extension/bmap.min.js"></script>
        <!-- <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=2GCVEjjkYGGiVjTR1EoENtf2SNzYaiRI"></script> -->
        <script type="text/javascript" src="http://api.map.baidu.com/api?v=3.0&ak=2GCVEjjkYGGiVjTR1EoENtf2SNzYaiRI"></script>
+
+       
        <!-- <script src="theme/dark.js"></script> -->
        <!-- button -->
        <!-- <link rel="shortcut icon" href="../favicon.ico"> 
@@ -38,8 +40,16 @@
 
         <!-- semantic-ui -->
         <link href="semantic.min.css" rel="stylesheet" type="text/css">
+        <!-- <link href="icon.min.css" rel="stylesheet" type="text/css"> -->
+
         <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
         <script src="semantic.min.js"></script>
+
+        <link href="https://cdn.bootcss.com/semantic-ui/2.4.1/components/icon.css" rel="stylesheet">
+
+        <!-- <script src="package.js"></script> -->
+
+
 
        <style type="text/css">
         div#mapDiv {
@@ -65,7 +75,19 @@
         
     </head>
 
-    <body style="height: 100%; margin: 0" >
+    <body>
+    <div class="ui left vertical menu sidebar">
+        <a class="item">
+            Item 1
+        </a>
+        <a class="item">
+            Item 2
+        </a>
+        <a class="item">
+            Item 3
+        </a>
+    </div>
+    <div class="pusher" style="height: 100%; margin: 0" >
         <!-- <div id="Echarts"></div> -->
         <div id="mapDiv"></div>
         <div id="optionList">
@@ -224,7 +246,7 @@
                 </script>
                 <div class="ui animated button" onclick="onClickSearchButton()">
                     <div class="visible content">搜索</div>
-                    <div class="hidden content">走</div>
+                    <div class="hidden content"><i class="compass icon"></i></div>
                 </div>  
             </div>
             <div id="detailLine" style="height: 35%; width: 100%; float: left;">
@@ -340,11 +362,7 @@
                 </script>
 
             </div>
-
-            
-        </div>
-
-
+    </div>
     </body>
 </html>
 
