@@ -707,15 +707,17 @@
 
     function translateTrace(){
         console.log('translateTrace');
-        var convertor = new BMap.Convertor();
-        var pointArr = [];
-        for(var j = 0; j < 10; ++j){
-            if(singleCarFilteredPointsIdx >= singleCarFilteredPoints.length) break;
-            pointArr.push(singleCarFilteredPoints[singleCarFilteredPointsIdx]);
-            ++singleCarFilteredPointsIdx;
+        while(true){
+            if(singleCarFilteredPointsIdx >= singleCarFilteredPoints.length){
+                break;
+            }else{
+                singleCarTranslatedPoints.push(singleCarFilteredPoints[singleCarFilteredPointsIdx]);
+                ++singleCarFilteredPointsIdx;
+
+            }
         }
-        // console.log(singleCarFilteredPointsIdx);
-        convertor.translate(pointArr, 1, 5, translateCallBackTrace);
+        do_singleCarTrace();
+
     }
 
     function requestSingleCarTrace(){
@@ -856,15 +858,41 @@
     
 
 // <!-- 默认查询 -->
+    function requestNormal(typeName){
+        console.log(getOperatingModeTypeName(typeName));
+        // console.log('requestOnline '+carPosition[0].length);
+        if(carPosition[typeName].length == 0) return;
+        
+        carPositionIdx[typeName] = 0;
+
+        while(carPositionIdx[typeName] != carPosition[typeName].length){
+            var marker = new BMap.Marker(new BMap.Point(carPosition[typeName][carPositionIdx[typeName]][1],carPosition[typeName][carPositionIdx[typeName]][2]));
+            marker.setIcon(iconArr[typeName]);
+            var content = carPosition[typeName][carPositionIdx[typeName]][0];
+            addMouseHandler(content, marker);
+            backgroundCarOverlayNew[typeName].push(marker);
+            ++carPositionIdx[typeName];
+        }
+
+        drawOverlay(typeName);
+    }
+
     function requestOnline(){
         // console.log('requestOnline '+carPosition[0].length);
         if(carPosition[0].length == 0) return;
         
         carPositionIdx[0] = 0;
-        var convertor = new BMap.Convertor();
-        var pointArr = [];
-        pointArr.push(new BMap.Point(carPosition[0][carPositionIdx[0]][1],carPosition[0][carPositionIdx[0]][2]));
-        convertor.translate(pointArr, 1, 5, translateCallBackOnline);
+
+        while(carPositionIdx[0] != carPosition[0].length){
+            var marker = new BMap.Marker(new BMap.Point(carPosition[0][carPositionIdx[0]][1],carPosition[0][carPositionIdx[0]][2]));
+            marker.setIcon(iconArr[0]);
+            var content = carPosition[0][carPositionIdx[0]][0];
+            addMouseHandler(content, marker);
+            backgroundCarOverlayNew[0].push(marker);
+            ++carPositionIdx[0];
+        }
+
+        drawOverlay(0);
     }
     function requestOffline(){
         if(carPosition[1].length == 0) return;
@@ -951,7 +979,7 @@
                 // }
                 for(var i = 0; i < totalOperatingModelCnt; ++i){
                     // console.log("request: "+i+" "+carPosition[i].length);
-                    if(needBackgroundRequest[i]) requestFunction[i]();
+                    if(needBackgroundRequest[i]) requestNormal(i);
                     // console.log(getOperatingModeTypeName(i)+' : '+carPosition[i].length);
                 }
 
