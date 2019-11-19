@@ -451,6 +451,7 @@
     var stack_initmode;
     var stack_poweron;
     var stack_time = new Array();
+    var stack_show_time = new Array();
     var stack_value = new Array(totalOperatingModelCnt);
     for(var i = 0; i < totalOperatingModelCnt; ++i){
         stack_value[i] = new Array();
@@ -584,6 +585,9 @@
         backgroundCarOverlayOld[i] = new Array();
         backgroundCarOverlayNew[i] = new Array();
     }
+
+    // stack初始化是否完成，防止在空stack里过早插入数据
+    var stackInitialFinish = false;
 
 
 
@@ -961,6 +965,12 @@
 
 // <!-- 背景查询 -->
 
+    function _get_valide_date_for_stack(millisecond){
+        var tem = new Date();
+        tem.setTime(millisecond);
+        return tem.toLocaleString();
+    }
+
     function _all_zero(idx){
         for(var i = 0; i < totalOperatingModelCnt; ++i){
             if(idx >= stack_value[i].length || stack_value[i][idx] != 0){
@@ -979,8 +989,9 @@
         for(var i = 0; i < totalOperatingModelCnt; ++i){
             stack_value[i] = new Array(1200);
         }
-        console.log('stack array initial finish with length: '+stack_value[0].length);
+        // console.log('stack array initial finish with length: '+stack_value[0].length);
         stack_time = new Array(1200);
+        // stack_show_time = new Array(1200);
         
         var curDate = timeValidate(new Date());
         // console.log('curDate'+curDate);
@@ -1039,6 +1050,12 @@
             }
         }
 
+        for(var i = 0; i < stack_time.length; ++i){
+            // var tem = new Date();
+            // tem.setTime(stack_time[i]);
+            stack_show_time.push(_get_valide_date_for_stack(stack_time[i]));
+        }
+
         // console.log(stack_value[0].length);
 
         var option = myChartStack.getOption();
@@ -1050,9 +1067,13 @@
         // option.series[2].data = stack_charging;
         // option.series[3].data = stack_initmode;
         // option.series[4].data = stack_poweron;
-        option.xAxis[0].data = stack_time;
+        option.xAxis[0].data = stack_show_time;
+        // option.xAxis[0].data = stack_time;
+
 
         myChartStack.setOption(option);
+
+        stackInitialFinish = true;
 
     }
 
@@ -1128,10 +1149,15 @@
                 myChartPie.setOption(option);
 
                 // console.log('brk 1');
-                var curDate = timeValidate(new Date());
+                // var curDate = timeValidate(new Date());
+                if(!stackInitialFinish) return;
+
+                var curDate = new Date().getTime();
+
                 if(stack_time.length == 0 || curDate > stack_time[stack_time.length-1] || _shouldUpdataStack()){
                     if(stack_time.length >= 1500){
                         stack_time.shift();
+                        stack_show_time.shift();
                         for(var i = 0; i < totalOperatingModelCnt; ++i){
                             stack_value[i].shift();
                         }
@@ -1141,9 +1167,11 @@
                         // stack_poweron.shift();
                         // stack_initmode.shift();
                     }
-                    stack_time.push((new Date()).getTime());
+                    var tem = new Date().getTime();
+                    stack_time.push(tem);
+                    stack_show_time.push(_get_valide_date_for_stack(tem));
                     for(var i = 0; i < totalOperatingModelCnt; ++i){
-                        console.log('stack_value.length'+stack_value.length);
+                        // console.log('stack_value.length'+stack_value.length);
 
                         console.log('stack_value[i].length'+stack_value[i].length);
 
@@ -1164,7 +1192,7 @@
                     // option.series[2].data = stack_charging;
                     // option.series[3].data = stack_initmode;
                     // option.series[4].data = stack_poweron;
-                    option.xAxis[0].data = stack_time;
+                    option.xAxis[0].data = stack_show_time;
 
                     myChartStack.setOption(option);
 
@@ -1591,7 +1619,7 @@
     }
 
     function drawOverlay(typeNum){
-        console.log(getOperatingModeTypeName(typeNum));
+        // console.log(getOperatingModeTypeName(typeNum));
         for(var i = 0; i < backgroundCarOverlayOld[typeNum].length; ++i){
             map.removeOverlay(backgroundCarOverlayOld[typeNum][i]);
         }
