@@ -450,7 +450,7 @@
     var stack_charging;
     var stack_initmode;
     var stack_poweron;
-    var stack_time;
+    var stack_time = new Array();
     var stack_value = new Array(totalOperatingModelCnt);
     for(var i = 0; i < totalOperatingModelCnt; ++i){
         stack_value[i] = new Array();
@@ -491,7 +491,7 @@
     var iconCharging = new BMap.Icon("icon-blue-small.gif", new BMap.Size(25, 25));
     var iconInitmode = new BMap.Icon("icon-purple-small.gif", new BMap.Size(25, 25));
     var iconPoweron = new BMap.Icon("icon-yellow-small.gif", new BMap.Size(25, 25));
-    var iconUnknown = new BMap.Icon("icon-oringe-small.gif", new BMap.Size(25, 25));
+    var iconUnknown = new BMap.Icon("icon-orange-small.gif", new BMap.Size(25, 25));
 
     var iconStart = new BMap.Icon("start.png", new BMap.Size(25, 25));
     var iconEnd = new BMap.Icon("final.png", new BMap.Size(25, 25));
@@ -543,15 +543,15 @@
     }
 
     function getOperatingModeTypeName(typeNum){
-        if(typeStr == 0){
+        if(typeNum == 0){
             return '行驶';
-        }else if(typeStr == 1){
+        }else if(typeNum == 1){
             return '休眠';
-        }else if(typeStr == 2){
+        }else if(typeNum == 2){
             return '充电';
-        }else if(typeStr == 3){
+        }else if(typeNum == 3){
             return '初始化';
-        }else if(typeStr == 4){
+        }else if(typeNum == 4){
             return '上电';
         }else{
             return '未知';
@@ -576,6 +576,14 @@
     var singleCarTranslatedPoints = new Array();
     var singleCarTranslatedPointsIdx = 0;
     var singleCarFilteredPointsIdx = 0;
+
+    // 全局模式下地图覆盖物记录
+    var backgroundCarOverlayOld = new Array(totalOperatingModelCnt);
+    var backgroundCarOverlayNew = new Array(totalOperatingModelCnt);
+    for(var i = 0; i < totalOperatingModelCnt; ++i){
+        backgroundCarOverlayOld[i] = new Array();
+        backgroundCarOverlayNew[i] = new Array();
+    }
 
 
 
@@ -887,6 +895,7 @@
         convertor.translate(pointArr, 1, 5, translateCallBackPoweron);
     }
     function requestUnknown(){
+        console.log('requestUnknown');
         if(carPosition[5].length == 0) return;
         carPositionIdx[5] = 0;
         var convertor = new BMap.Convertor();
@@ -894,6 +903,15 @@
         pointArr.push(new BMap.Point(carPosition[5][carPositionIdx[5]][1],carPosition[5][carPositionIdx[5]][2]));
         convertor.translate(pointArr, 1, 5, translateCallBackUnknown);
     }
+
+    // function requestNormal(typeNum){
+    //     if(carPosition[typeNum].length == 0) return;
+    //     carPositionIdx[typeNum] = 0;
+    //     var convertor = new BMap.Convertor();
+    //     var pointArr = [];
+    //     pointArr.push(new BMap.Point(carPosition[typeNum][carPositionIdx[typeNum]][1],carPosition[typeNum][carPositionIdx[typeNum]][2]));
+    //     convertor.translate(pointArr, 1, 5, translateCallBackNor);
+    // }
 
     var requestFunction = [requestOnline, requestOffline, requestCharging, requestInitmode, requestPoweron, requestUnknown];
 
@@ -930,6 +948,7 @@
                 for(var i = 0; i < totalOperatingModelCnt; ++i){
                     // console.log("request: "+i+" "+carPosition[i].length);
                     if(needBackgroundRequest[i]) requestFunction[i]();
+                    // console.log(getOperatingModeTypeName(i)+' : '+carPosition[i].length);
                 }
 
             }
@@ -1195,6 +1214,18 @@
     // <!-- 饼图回调函数 --> 
     function eConsole(param) {
         needBackgroundRequest[param.dataIndex] = !needBackgroundRequest[param.dataIndex];
+        if(needBackgroundRequest[param.dataIndex] == false){
+            for(var i = 0; i < backgroundCarOverlayOld[param.dataIndex].length; ++i){
+                map.removeOverlay(backgroundCarOverlayOld[param.dataIndex][i]);
+            }
+            // backgroundCarOverlayOld[param.dataIndex];
+        }else{
+            if(backgroundCarOverlayOld[param.dataIndex].length != 0){
+                for(var i = 0; i < backgroundCarOverlayOld[param.dataIndex].length; ++i){
+                    map.addOverlay(backgroundCarOverlayOld[param.dataIndex][i]);
+                }
+            }
+        }
         needAnimation[param.dataIndex] = true;
     }
 
@@ -1235,6 +1266,7 @@
         // else{
             mapLocked = true;
             map.clearOverlays();
+            curSingleMode = true;
             curCarVin = requestIdValue;
             curCarType = requestTypeValue;
             requestSingleCarTrace();
@@ -1251,7 +1283,7 @@
     // 进入单车模式后增加的地图回调函数 用于返回到默认模式
     function backToBackground(){
         console.log("evoke");
-
+        map.clearOverlays();
         // map.removeEventListener("click", backToBackground);
         for(var i = 0; i < needAnimation.length; ++i){
             needAnimation[i] = true;
@@ -1276,6 +1308,15 @@
             }]
         });
 
+        for(var i = 0; i < totalOperatingModelCnt; ++i){
+            
+            if(needBackgroundRequest[i] && backgroundCarOverlayOld[i].length != 0){
+                for(var j = 0; j < backgroundCarOverlayOld[i].length; ++j){
+                    map.addOverlay(backgroundCarOverlayOld[i][j]);
+                }
+            }
+        }
+
         curSingleMode = false;
         document.getElementById("right_bottom_coner_detail").style.display="none";//隐藏
         document.getElementById("right_bottom_coner_default").style.display="";
@@ -1292,13 +1333,17 @@
             var marker = new BMap.Marker(data.points[0]);
             marker.setIcon(iconArr[0]);
             var content = carPosition[0][carPositionIdx[0]][0];
-            map.addOverlay(marker)
-            if(needAnimation[0]) marker.setAnimation(BMAP_ANIMATION_DROP);//坠落动画
+            // map.addOverlay(marker)
+            // if(needAnimation[0]) marker.setAnimation(BMAP_ANIMATION_DROP);//坠落动画
             addMouseHandler(content, marker);
+            backgroundCarOverlayNew[0].push(marker);
+
             
             ++carPositionIdx[0];
             if(carPositionIdx[0] == carPosition[0].length){
                 needAnimation[0] = false;
+                drawOverlay(0);
+
                 // for(var i = 0; i < totalOperatingModelCnt; ++i){
                 //     if(carPositionIdx[i] != carPosition[i].length){
                 //         return;
@@ -1321,13 +1366,17 @@
             var marker = new BMap.Marker(data.points[0]);
             marker.setIcon(iconArr[1]);
             var content = carPosition[1][carPositionIdx[1]][0];
-            map.addOverlay(marker)
-            if(needAnimation[1]) marker.setAnimation(BMAP_ANIMATION_DROP);//坠落动画
+            // map.addOverlay(marker)
+            // if(needAnimation[1]) marker.setAnimation(BMAP_ANIMATION_DROP);//坠落动画
             addMouseHandler(content, marker);
+            backgroundCarOverlayNew[1].push(marker);
+
             
             ++carPositionIdx[1];
             if(carPositionIdx[1] == carPosition[1].length){
                 needAnimation[1] = false;
+                drawOverlay(1);
+
                 // for(var i = 0; i < totalOperatingModelCnt; ++i){
                 //     if(carPositionIdx[i] != carPosition[i].length){
                 //         return;
@@ -1350,13 +1399,17 @@
             var marker = new BMap.Marker(data.points[0]);
             marker.setIcon(iconArr[2]);
             var content = carPosition[2][carPositionIdx[2]][0];
-            map.addOverlay(marker)
-            if(needAnimation[2]) marker.setAnimation(BMAP_ANIMATION_DROP);//坠落动画
+            // map.addOverlay(marker)
+            // if(needAnimation[2]) marker.setAnimation(BMAP_ANIMATION_DROP);//坠落动画
             addMouseHandler(content, marker);
+            backgroundCarOverlayNew[2].push(marker);
+
             
             ++carPositionIdx[2];
             if(carPositionIdx[2] == carPosition[2].length){
                 needAnimation[2] = false;
+                drawOverlay(2);
+
                 // for(var i = 0; i < totalOperatingModelCnt; ++i){
                 //     if(carPositionIdx[i] != carPosition[i].length){
                 //         return;
@@ -1379,13 +1432,17 @@
             var marker = new BMap.Marker(data.points[0]);
             marker.setIcon(iconArr[3]);
             var content = carPosition[3][carPositionIdx[3]][0];
-            map.addOverlay(marker)
-            if(needAnimation[3]) marker.setAnimation(BMAP_ANIMATION_DROP);//坠落动画
+            // map.addOverlay(marker)
+            // if(needAnimation[3]) marker.setAnimation(BMAP_ANIMATION_DROP);//坠落动画
             addMouseHandler(content, marker);
+            backgroundCarOverlayNew[3].push(marker);
+
             
             ++carPositionIdx[3];
             if(carPositionIdx[3] == carPosition[3].length){
                 needAnimation[3] = false;
+                drawOverlay(3);
+
                 // for(var i = 0; i < totalOperatingModelCnt; ++i){
                 //     if(carPositionIdx[i] != carPosition[i].length){
                 //         return;
@@ -1408,13 +1465,17 @@
             var marker = new BMap.Marker(data.points[0]);
             marker.setIcon(iconArr[4]);
             var content = carPosition[4][carPositionIdx[4]][0];
-            map.addOverlay(marker)
-            if(needAnimation[4]) marker.setAnimation(BMAP_ANIMATION_DROP);//坠落动画
+            // map.addOverlay(marker)
+            // if(needAnimation[4]) marker.setAnimation(BMAP_ANIMATION_DROP);//坠落动画
             addMouseHandler(content, marker);
+            backgroundCarOverlayNew[4].push(marker);
+
             
             ++carPositionIdx[4];
             if(carPositionIdx[4] == carPosition[4].length){
                 needAnimation[4] = false;
+                drawOverlay(4);
+
                 // for(var i = 0; i < totalOperatingModelCnt; ++i){
                 //     if(carPositionIdx[i] != carPosition[i].length){
                 //         return;
@@ -1434,16 +1495,23 @@
         if(data.status != 0){
             console.log('translateCallBackPoweron');
         }else{
+            // console.log('unknown translate doing');
+
             var marker = new BMap.Marker(data.points[0]);
             marker.setIcon(iconArr[5]);
             var content = carPosition[5][carPositionIdx[5]][0];
-            map.addOverlay(marker)
-            if(needAnimation[5]) marker.setAnimation(BMAP_ANIMATION_DROP);//坠落动画
+            // map.addOverlay(marker)
+            // if(needAnimation[5]) marker.setAnimation(BMAP_ANIMATION_DROP);//坠落动画
             addMouseHandler(content, marker);
+            backgroundCarOverlayNew[5].push(marker);
+
             
             ++carPositionIdx[5];
             if(carPositionIdx[5] == carPosition[5].length){
                 needAnimation[5] = false;
+                // console.log('unknown translate finish');
+                drawOverlay(5);
+
                 // for(var i = 0; i < totalOperatingModelCnt; ++i){
                 //     if(carPositionIdx[i] != carPosition[i].length){
                 //         return;
@@ -1454,10 +1522,41 @@
                 var convertor = new BMap.Convertor();
                 var pointArr = [];
                 pointArr.push(new BMap.Point(carPosition[5][carPositionIdx[5]][1],carPosition[5][carPositionIdx[5]][2]));
-                convertor.translate(pointArr, 1, 5, translateCallBackPoweron);
+                convertor.translate(pointArr, 1, 5, translateCallBackUnknown);
             }
         }
     }
+
+    // function translateCallBackNormal(data, typeNum){
+    //     if(data.status != 0){
+    //         console.log('translateCallBackNormal '+typeNum);
+    //     }else{
+    //         var marker = new BMap.Marker(data.points[0]);
+    //         marker.setIcon(iconArr[typeNum]);
+    //         var content = carPosition[typeNum][carPositionIdx[typeNum]][0];
+    //         // map.addOverlay(marker)
+    //         // if(needAnimation[5]) marker.setAnimation(BMAP_ANIMATION_DROP);//坠落动画
+    //         addMouseHandler(content, marker);
+    //         backgroundCarOverlayNew[typeNum].push(marker);
+            
+    //         ++carPositionIdx[typeNum];
+    //         if(carPositionIdx[typeNum] == carPosition[typeNum].length){
+    //             needAnimation[typeNum] = false;
+    //             drawOverlay(typeNum);
+    //             // for(var i = 0; i < totalOperatingModelCnt; ++i){
+    //             //     if(carPositionIdx[i] != carPosition[i].length){
+    //             //         return;
+    //             //     }
+    //             // }
+    //             // mapLocked = false;
+    //         }else{
+    //             var convertor = new BMap.Convertor();
+    //             var pointArr = [];
+    //             pointArr.push(new BMap.Point(carPosition[typeNum][carPositionIdx[typeNum]][1],carPosition[typeNum][carPositionIdx[typeNum]][2]));
+    //             convertor.translate(pointArr, 1, 5, translateCallBackPoweron);
+    //         }
+    //     }
+    // }
 
     function translateCallBackTrace(data){
         if(data.status != 0){
@@ -1489,6 +1588,21 @@
                 convertor.translate(pointArr, 1, 5, translateCallBackTrace);
             }
         }
+    }
+
+    function drawOverlay(typeNum){
+        console.log(getOperatingModeTypeName(typeNum));
+        for(var i = 0; i < backgroundCarOverlayOld[typeNum].length; ++i){
+            map.removeOverlay(backgroundCarOverlayOld[typeNum][i]);
+        }
+        backgroundCarOverlayOld[typeNum] = new Array();
+        for(var i = 0; i < backgroundCarOverlayNew[typeNum].length; ++i){
+            if(needBackgroundRequest[typeNum] && !curSingleMode){
+                map.addOverlay(backgroundCarOverlayNew[typeNum][i]);
+            }
+            backgroundCarOverlayOld[typeNum].push(backgroundCarOverlayNew[typeNum][i]);
+        }
+        backgroundCarOverlayNew[typeNum] = new Array();
     }
 
     function singleQueryTranslateCallBack(data){
@@ -2262,7 +2376,9 @@ var domGuage = document.getElementById("guage");
     initialStack();
     myChartPie.on("click", eConsole);
     backToBackground();
-    setInterval(function(){requestCurrentTypeNum()}, 919);
+    requestCurrentTypeNum();
+    backgroundRequest();
+    setInterval(function(){requestCurrentTypeNum();}, 12253 );
     setInterval(function(){
         // console.log('needUpdateMap: '+needUpdateMap);
         // console.log('mapLocked: '+mapLocked);
@@ -2270,13 +2386,13 @@ var domGuage = document.getElementById("guage");
         if(!needUpdateMap || mapLocked) return;
         if(!curSingleMode){
             // console.log('request background');
-            map.clearOverlays();
+            // map.clearOverlays();
             backgroundRequest();
         }else{
             // console.log('request single');
             // requestSingleCarHistory();
             requestSingleCar();
         }
-    }, 977);
+    }, 11719 );
 </script>
           
