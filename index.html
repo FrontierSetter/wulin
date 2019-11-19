@@ -981,24 +981,24 @@
     }
     function do_initialStack(data){
         // console.log(data.length);
-        // stack_online = new Array(1200);
-        // stack_offline = new Array(1200);
-        // stack_charging = new Array(1200);
-        // stack_initmode = new Array(1200);
-        // stack_poweron = new Array(1200);
+        // stack_online = new Array(5000);
+        // stack_offline = new Array(5000);
+        // stack_charging = new Array(5000);
+        // stack_initmode = new Array(5000);
+        // stack_poweron = new Array(5000);
         for(var i = 0; i < totalOperatingModelCnt; ++i){
-            stack_value[i] = new Array(1200);
+            stack_value[i] = new Array(5000);
         }
         // console.log('stack array initial finish with length: '+stack_value[0].length);
-        stack_time = new Array(1200);
-        // stack_show_time = new Array(1200);
+        stack_time = new Array(5000);
+        // stack_show_time = new Array(5000);
         
         var curDate = timeValidate(new Date());
         // console.log('curDate'+curDate);
 
-        for(var i = 0; i < 1200; ++i){
+        for(var i = 0; i < 5000; ++i){
             // console.log(i);
-            stack_time[1200-1-i] = (curDate-timeGap*i);
+            stack_time[5000-1-i] = (curDate-timeGap*i);
             for(var j = 0; j < totalOperatingModelCnt; ++j){
                 stack_value[j][i] = 0;
             }
