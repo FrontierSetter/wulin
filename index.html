@@ -722,7 +722,7 @@
             ++singleCarFilteredPointsIdx;
         }
         // console.log(singleCarFilteredPointsIdx);
-        convertor.translate(pointArr, 1, 5, translateCallBackTrace);
+        if(pointArr.length > 0) convertor.translate(pointArr, 1, 5, translateCallBackTrace);
     }
 
     function requestSingleCarTrace(){
