@@ -688,6 +688,8 @@
         return true;
     }
 
+    // 旧版本，直接使用点，然后用坐标转换，手动画图
+
     function filterTrace(data){
         console.log('filterTrace');
         for(var i = 0; i < data.length; ++i){
@@ -725,6 +727,76 @@
         convertor.translate(pointArr, 1, 5, translateCallBackTrace);
     }
 
+    // 新版本，使用坐标，进行诡计纠偏
+
+    function validateTrace(data){
+        console.log('过滤前的历史轨迹长度: '+data.length);
+        // singleCarFilteredPoints = new Array();
+
+        for(var i = 0; i < data.length; ++i){
+            if(!rawPointValid(data[i]['longitude'], data[i]['latitude'])){
+                continue;
+            }
+
+            if(singleCarFilteredPoints.length == 0 || data[i]['longitude'] != singleCarFilteredPoints[singleCarFilteredPoints.length-1]['longitude'] || data[i]['latitude'] != singleCarFilteredPoints[singleCarFilteredPoints.length-1]['latitude']){
+                singleCarFilteredPoints.push({
+                    loc_time:Date.parse(data[i]['create_time']),
+                    latitude:data[i]['latitude'],
+                    longitude:data[i]['longitude'],
+                    coord_type_input:'wgs84'
+                });
+            }
+            // if(singleCarFilteredPoints.length > 10) break;
+        }
+        console.log('过滤完的历史轨迹长度: '+singleCarFilteredPoints.length);
+    }
+
+    function do_processTrace(data){
+        if(data.status != 0){
+            console.log('轨迹匹配错误');
+        }else{
+            var points = data.points;
+            console.log('得到的轨迹长度: '+points.length);
+            // singleCarTranslatedPoints = new Array();
+            for(var i = 0; i < points.length; ++i){
+                singleCarTranslatedPoints.push(new BMap.Point(points[i]['longitude'], points[i]['latitude']));
+                console.log(''+points[i]['loc_time']);
+            }
+            do_singleCarTrace();
+        }
+    }
+
+    function processTrace(){
+        // var url = 'http://api.map.baidu.com/rectify/v1/track?'+'ak=TPTl8csMbN0Lzt7vPz5vuLu5tfpm6XeI&'+JSON.stringify(singleCarFilteredPoints)+'&callback=do_processTrace';
+        // jQuery.getScript((url));
+
+        $.ajax({
+            url: 'http://api.map.baidu.com/rectify/v1/track', //请求的url
+            type: 'post', //请求的方式
+            data: 'ak=TPTl8csMbN0Lzt7vPz5vuLu5tfpm6XeI&'+JSON.stringify(singleCarFilteredPoints)+'&jsoncallback=?',
+            dataType:'jsonp',
+            crossDomain:true,
+            error: function (data) {
+                console.log('processTrace请求失败');
+            },
+            success: function (data) {
+                if(data.status != 0){
+                    console.log('轨迹匹配错误');
+                }else{
+                    var points = data.points;
+                    console.log('得到的轨迹长度: '+points.length);
+                    // singleCarTranslatedPoints = new Array();
+                    for(var i = 0; i < points.length; ++i){
+                        singleCarTranslatedPoints.push(new BMap.Point(points[i]['longitude'], points[i]['latitude']));
+                        console.log(''+points[i]['loc_time']);
+                    }
+                    do_singleCarTrace();
+                }
+            }
+            
+        });
+    }
+
     function requestSingleCarTrace(){
         $.ajax({
             url: 'http://202.120.60.31:3000/query/single/route', //请求的url
@@ -739,8 +811,14 @@
                 singleCarFilteredPoints = new Array();
                 singleCarFilteredPointsIdx = 0;
                 singleCarTranslatedPointsIdx = 0;
-                filterTrace(data);
-                translateTrace();
+                // filterTrace(data);
+                // translateTrace();
+                validateTrace(data);
+                if(singleCarFilteredPoints.length == 0){
+                    alert('no trace for this car');
+                }else{
+                    processTrace();
+                }
             }
             
         });
