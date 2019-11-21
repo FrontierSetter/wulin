@@ -11,7 +11,7 @@
        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts/map/js/world.js"></script>
        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts/dist/extension/bmap.min.js"></script>
        <!-- <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=2GCVEjjkYGGiVjTR1EoENtf2SNzYaiRI"></script> -->
-       <script type="text/javascript" src="http://api.map.baidu.com/api?v=3.0&ak=2GCVEjjkYGGiVjTR1EoENtf2SNzYaiRI"></script>
+       <script type="text/javascript" src="http://api.map.baidu.com/api?v=3.0&ak=stCj3XtKtn4BKeUDSV512dwfCEDBkh6Y"></script>
 
        
        <!-- <script src="theme/dark.js"></script> -->
@@ -80,8 +80,8 @@
         <a class="item" href="javascript:void(0);" onclick="window.location.reload();">
             刷新
         </a>
-        <a class="item">
-            Item 2
+        <a class="item" href="javascript:void(0);" onclick="function(){pageStale = false;}">
+            重新激活
         </a>
         <a class="item">
             Item 3
@@ -589,6 +589,9 @@
     // stack初始化是否完成，防止在空stack里过早插入数据
     var stackInitialFinish = false;
 
+    // 网页过期
+    var pageStale = false;
+
 
 
 // <!-- 单车查询 -->
@@ -702,6 +705,8 @@
             }
             // if(singleCarFilteredPoints.length > 10) break;
         }
+        console.log('过滤完的历史轨迹长度: '+singleCarFilteredPoints.length);
+
         // console.log(singleCarFilteredPoints.length);
     }
 
@@ -818,8 +823,8 @@
 
                 // document.getElementById("detail_car").innerHTML = data;
                 for(var key in data){
-                    console.log("detail_"+key);
-                    console.log(''+key+ ' : '+data[key]);
+                    // console.log("detail_"+key);
+                    // console.log(''+key+ ' : '+data[key]);
                     var element = document.getElementById('detail_'+key)
                     if(element != null) element.innerHTML = ''+key+ ' : '+data[key];
                 }
@@ -1597,9 +1602,9 @@
                     // drawLine(singleCarTranslatedPoints[singleCarTranslatedPoints.length-2], singleCarTranslatedPoints[singleCarTranslatedPoints.length-1]);
                 }
             }
-            console.log(singleCarTranslatedPoints.length);
+            // console.log(singleCarTranslatedPoints.length);
             if(singleCarFilteredPointsIdx >= singleCarFilteredPoints.length){
-                console.log('translate finish');
+                console.log('translate finish: '+singleCarTranslatedPoints.length);
                 do_singleCarTrace();
             }else{
                 var convertor = new BMap.Convertor();
@@ -2406,10 +2411,15 @@ var domGuage = document.getElementById("guage");
     backToBackground();
     requestCurrentTypeNum();
     backgroundRequest();
-    setInterval(function(){requestCurrentTypeNum();}, 12253 );
+    setInterval(function(){
+        if(pageStale) return;
+        requestCurrentTypeNum();
+    }, 12253 );
     setInterval(function(){
         // console.log('needUpdateMap: '+needUpdateMap);
         // console.log('mapLocked: '+mapLocked);
+
+        if(pageStale) return;
 
         if(!needUpdateMap || mapLocked) return;
         if(!curSingleMode){
@@ -2422,5 +2432,9 @@ var domGuage = document.getElementById("guage");
             requestSingleCar();
         }
     }, 11719 );
+
+    setInterval(function(){
+        pageStale = true;
+    }, 600000);
 </script>
           
