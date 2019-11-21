@@ -592,6 +592,8 @@
     // 网页过期
     var pageStale = false;
 
+    // 用于背景查询的坐标缓存
+    var backGroundPointCache = {};
 
 
 // <!-- 单车查询 -->
@@ -924,6 +926,28 @@
 
     var requestFunction = [requestOnline, requestOffline, requestCharging, requestInitmode, requestPoweron, requestUnknown];
 
+    var filterDic = {}
+    var filteredData = new Array();
+
+    // 过滤全局模式车辆坐标请求返回信息中的重复内容
+    function filterBackgroundRequest(data){
+        filterDic = {};
+        for(var i = 0; i < data.length; ++i){
+            var tem_key = data[i]['car_VIN']
+            if(filterTrace.hasOwnProperty(tem_key) && filterTrace[tem_key]['create_time'] >= data[i]['tem_key']){
+                continue;
+            }else{
+                filterDic[tem_key] = data[i];
+            }
+        }
+
+        filteredData = new Array();
+        for(var k in filterDic){
+            filteredData.push(filterDic[k]);
+        }
+
+    }
+
     function backgroundRequest(){
         // map.clearOverlays();
         $.ajax({
@@ -937,8 +961,59 @@
                     carPosition[i] = [];
                 }
 
-                for(var i = 0; i < data.length; ++i){
-                    (carPosition[getOperatingModeType(data[i]['vehicle_operating_mode'])]).push([data[i]['car_VIN']+' '+data[i]['vehicle_operating_mode'], data[i]['longitude'], data[i]['latitude']]);
+                var requestcnt = 0;
+                var cachecnt = 0;
+                var nocarcnt = 0;
+                var unequalcnt = 0;
+                var undefinecnt = 0;
+
+                filterBackgroundRequest(data);
+
+
+                for(var i = 0; i < filteredData.length; ++i){
+
+                    // if(i+1 < data.length && data[i]['car_VIN'] == data[i+1]['car_VIN']){
+                    //     continue;
+                    // }
+
+                    var tem_vin = filteredData[i]['car_VIN'];
+                    var tem_point = new BMap.Point(filteredData[i]['longitude'], filteredData[i]['latitude']);
+                    var tem_type = getOperatingModeType(filteredData[i]['vehicle_operating_mode']);
+
+
+                    if(backGroundPointCache.hasOwnProperty(tem_vin) && backGroundPointCache[tem_vin]['raw'].equals(tem_point) && backGroundPointCache[tem_vin]['converted'] != undefined){
+                        cachecnt += 1;
+                        
+                        var marker = new BMap.Marker(backGroundPointCache[tem_vin]['converted']);
+                        marker.setIcon(iconArr[tem_type]);
+                        var content = filteredData[i]['car_VIN']+' '+filteredData[i]['vehicle_operating_mode'];
+                        // map.addOverlay(marker)
+                        // if(needAnimation[5]) marker.setAnimation(BMAP_ANIMATION_DROP);//坠落动画
+                        addMouseHandler(content, marker);
+                        backgroundCarOverlayNew[tem_type].push(marker);
+                    }else{
+                        requestcnt += 1;
+                        if(!backGroundPointCache.hasOwnProperty(tem_vin)){
+                            ++nocarcnt;
+                        }else if(!backGroundPointCache[tem_vin]['raw'].equals(tem_point)){
+                            ++unequalcnt;
+                            // console.log('carvin: '+tem_vin);
+                            // console.log('unequal: '+filteredData[i]['longitude']+', '+filteredData[i]['latitude']+' old: '+backGroundPointCache[tem_vin]['raw'].lng+', '+backGroundPointCache[tem_vin]['raw'].lat);
+                        }else{
+                            ++undefinecnt;
+                        }
+
+                        backGroundPointCache[tem_vin] = {
+                            raw:tem_point,
+                            converted:undefined
+                        };
+                        (carPosition[getOperatingModeType(filteredData[i]['vehicle_operating_mode'])]).push([filteredData[i]['car_VIN']+' '+filteredData[i]['vehicle_operating_mode'], filteredData[i]['longitude'], filteredData[i]['latitude']]);
+
+                    }
+
+                    // (carPosition[getOperatingModeType(data[i]['vehicle_operating_mode'])]).push([data[i]['car_VIN']+' '+data[i]['vehicle_operating_mode'], new Bmap.Point(data[i]['longitude'], data[i]['latitude'])]);
+
+                    // (carPosition[getOperatingModeType(data[i]['vehicle_operating_mode'])]).push([data[i]['car_VIN']+' '+data[i]['vehicle_operating_mode'], data[i]['longitude'], data[i]['latitude']]);
                     // if(data[i]['vehicle_operating_mode'] == '行驶'){
                     //     onlineCarPosition.push([data[i]['car_VIN'], data[i]['longitude'], data[i]['latitude']]);
                     // }else if(data[i]['vehicle_operating_mode'] == '离线'){
@@ -951,6 +1026,10 @@
                     //     poweronCarPosition.push([data[i]['car_VIN'], data[i]['longitude'], data[i]['latitude']]);
                     // }
                 }
+
+                console.log('request: '+requestcnt+' cache: '+cachecnt);
+                console.log('nocar: '+nocarcnt+' unequal: '+unequalcnt+' undefine: '+undefinecnt);
+
                 // for(var i = 0; i < totalOperatingModelCnt; ++i){
                 //     console.log(carPosition[i].length+'');
                 // }
@@ -1371,6 +1450,9 @@
             addMouseHandler(content, marker);
             backgroundCarOverlayNew[0].push(marker);
 
+            var tem_vin = content.split(' ')[0];
+            backGroundPointCache[tem_vin]['converted'] = data.points[0];
+
             
             ++carPositionIdx[0];
             if(carPositionIdx[0] == carPosition[0].length){
@@ -1403,6 +1485,9 @@
             // if(needAnimation[1]) marker.setAnimation(BMAP_ANIMATION_DROP);//坠落动画
             addMouseHandler(content, marker);
             backgroundCarOverlayNew[1].push(marker);
+
+            var tem_vin = content.split(' ')[0];
+            backGroundPointCache[tem_vin]['converted'] = data.points[0];
 
             
             ++carPositionIdx[1];
@@ -1437,6 +1522,9 @@
             addMouseHandler(content, marker);
             backgroundCarOverlayNew[2].push(marker);
 
+            var tem_vin = content.split(' ')[0];
+            backGroundPointCache[tem_vin]['converted'] = data.points[0];
+
             
             ++carPositionIdx[2];
             if(carPositionIdx[2] == carPosition[2].length){
@@ -1469,6 +1557,9 @@
             // if(needAnimation[3]) marker.setAnimation(BMAP_ANIMATION_DROP);//坠落动画
             addMouseHandler(content, marker);
             backgroundCarOverlayNew[3].push(marker);
+
+            var tem_vin = content.split(' ')[0];
+            backGroundPointCache[tem_vin]['converted'] = data.points[0];
 
             
             ++carPositionIdx[3];
@@ -1503,6 +1594,9 @@
             addMouseHandler(content, marker);
             backgroundCarOverlayNew[4].push(marker);
 
+            var tem_vin = content.split(' ')[0];
+            backGroundPointCache[tem_vin]['converted'] = data.points[0];
+
             
             ++carPositionIdx[4];
             if(carPositionIdx[4] == carPosition[4].length){
@@ -1529,6 +1623,7 @@
             console.log('translateCallBackPoweron');
         }else{
             // console.log('unknown translate doing');
+            
 
             var marker = new BMap.Marker(data.points[0]);
             marker.setIcon(iconArr[5]);
@@ -1537,6 +1632,9 @@
             // if(needAnimation[5]) marker.setAnimation(BMAP_ANIMATION_DROP);//坠落动画
             addMouseHandler(content, marker);
             backgroundCarOverlayNew[5].push(marker);
+
+            var tem_vin = content.split(' ')[0];
+            backGroundPointCache[tem_vin]['converted'] = data.points[0];
 
             
             ++carPositionIdx[5];
