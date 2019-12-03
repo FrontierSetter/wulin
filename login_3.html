@@ -147,7 +147,7 @@ h1 {
 @media screen and (min-width: 860px) {
   .sky-container {
     top: 18%;
-    right: 12%;
+    right: auto;
     left: auto;
   }
 }
@@ -250,7 +250,7 @@ h1 {
 
 <body>
 <div class="x-mark">
-	<div class="container">
+	<div class="container" onclick="hideskycontainer()">
 		<div class="left"></div>
 		<div class="right"></div>
 	</div>
@@ -275,7 +275,30 @@ h1 {
     </div>
   </div>
 </div>
-<div class="sky-container">
+<div class="sky-container" id="screenselector" style = "width: 40%; height: 40%; margin-left: 30%; margin-right: 30%; display: none">
+  <div style="width: 74%; height: 74%; float: left;">
+      <button class="ui fluid inverted teal button" style="height: 100%;">屏幕0</button>
+  </div>
+
+  <div style="width: 24%; height: 74%; float: left;"> 
+      <button class="ui fluid inverted teal button" style="height: 25%;">屏幕1</button>
+      <button class="ui fluid inverted teal button" style="height: 25%;">屏幕2</button>
+      <button class="ui fluid inverted teal button" style="height: 25%;">屏幕3</button>
+      <button class="ui fluid inverted teal button" style="height: 25%;">屏幕4</button>
+    </div>
+
+  <div style="width: 98 %; height: 24%; float: left;">
+      <!-- <button class="ui inverted teal button" style="height: 100%; width: 2%; margin: 0%;">屏幕5</button>
+      <button class="ui inverted teal button" style="height: 100%; width: 2%; margin: 0%;">屏幕5</button>
+      <button class="ui inverted teal button" style="height: 100%; width: 2%; margin: 0%;">屏幕5</button>
+      <button class="ui inverted teal button" style="height: 100%; width: 2%; margin: 0%;">屏幕5</button> -->
+      
+      <div style="height: 100%; width: 25%; padding-right:5%; float: left;"><button class="ui inverted teal button" style="height: 100%; width: 90%;">屏幕5</button></div>
+      <div style="height: 100%; width: 25%; padding-right:5%; float: left;"><button class="ui inverted teal button" style="height: 100%; width: 90%; ">屏幕5</button></div>
+      <div style="height: 100%; width: 25%; padding-right:5%; float: left;"><button class="ui inverted teal button" style="height: 100%; width: 90%; ">屏幕5</button></div>
+      <div style="height: 100%; width: 25%; padding-right:5%; float: left;"><button class="ui inverted teal button" style="height: 100%; width: 90%; ">屏幕5</button></div>
+
+    </div>
     
 	<!-- <div class="text-right sky-container__left">
 		<h2 class="portfolio">
@@ -323,6 +346,7 @@ h1 {
   function _log_in(){
     console.log('进入');
     var curPassword = document.getElementById("_password").value;
+    document.getElementById("screenselector").style.display="";
     // $.ajax({
     //   url: 'http://202.120.60.31:3000/login', //请求的url
     //   type: 'get', //请求的方式
@@ -337,6 +361,14 @@ h1 {
     //   }
         
     // });
+  }
+
+  function hideskycontainer(){
+    // document.getElementById("screenselector").style.display="none";
+    setTimeout(function(){
+      document.getElementById("screenselector").style.display="none";
+    }, 1000);
+
   }
 
 </script>
