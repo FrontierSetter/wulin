@@ -2,7 +2,7 @@
 <html >
 <head>
 <meta charset="UTF-8">
-<title>Canvas鼠标经过碎片高亮变化特效 - 站长素材</title>
+<title>智能车监控平台</title>
 
 <script src="login_3/jrj6out.js"></script>
 <script>try{Typekit.load({ async: false });}catch(e){}</script>
@@ -243,6 +243,7 @@ h1 {
 <link href="https://cdn.bootcss.com/semantic-ui/2.4.1/components/icon.css" rel="stylesheet">
 <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 
+<script src="lsbridge.min.js"></script>
 
 
 
@@ -266,7 +267,7 @@ h1 {
   </div>
 
   <div style="width: 100%; float: left">
-	  <div class="button shift-camera-button" onclick='_log_in()'>
+	  <div class="button shift-camera-button" id="login_button" onclick='_log_in()'>
       <div class="border">
         <div class="left-plane"></div>
         <div class="right-plane"></div>
@@ -277,14 +278,14 @@ h1 {
 </div>
 <div class="sky-container" id="screenselector" style = "width: 40%; height: 40%; margin-left: 30%; margin-right: 30%; display: none">
   <div style="width: 74%; height: 74%; float: left;">
-      <button class="ui fluid inverted teal button" style="height: 100%;">屏幕0</button>
+      <button class="ui fluid inverted teal button" id="screen_0" style="height: 100%;" onclick="screen_0_click()">屏幕0</button>
   </div>
 
   <div style="width: 24%; height: 74%; float: left;"> 
-      <button class="ui fluid inverted teal button" style="height: 25%;">屏幕1</button>
-      <button class="ui fluid inverted teal button" style="height: 25%;">屏幕2</button>
-      <button class="ui fluid inverted teal button" style="height: 25%;">屏幕3</button>
-      <button class="ui fluid inverted teal button" style="height: 25%;">屏幕4</button>
+      <button class="ui fluid inverted teal button" id="screen_1" style="height: 25%;" onclick="screen_1_click()">屏幕1</button>
+      <button class="ui fluid inverted teal button" id="screen_2" style="height: 25%;" onclick="screen_2_click()">屏幕2</button>
+      <button class="ui fluid inverted teal button" id="screen_3" style="height: 25%;" onclick="screen_3_click()">屏幕3</button>
+      <button class="ui fluid inverted teal button" id="screen_4" style="height: 25%;" onclick="screen_4_click()">屏幕4</button>
     </div>
 
   <div style="width: 98 %; height: 24%; float: left;">
@@ -293,10 +294,10 @@ h1 {
       <button class="ui inverted teal button" style="height: 100%; width: 2%; margin: 0%;">屏幕5</button>
       <button class="ui inverted teal button" style="height: 100%; width: 2%; margin: 0%;">屏幕5</button> -->
       
-      <div style="height: 100%; width: 25%; padding-right:5%; float: left;"><button class="ui inverted teal button" style="height: 100%; width: 90%;">屏幕5</button></div>
-      <div style="height: 100%; width: 25%; padding-right:5%; float: left;"><button class="ui inverted teal button" style="height: 100%; width: 90%; ">屏幕5</button></div>
-      <div style="height: 100%; width: 25%; padding-right:5%; float: left;"><button class="ui inverted teal button" style="height: 100%; width: 90%; ">屏幕5</button></div>
-      <div style="height: 100%; width: 25%; padding-right:5%; float: left;"><button class="ui inverted teal button" style="height: 100%; width: 90%; ">屏幕5</button></div>
+      <div style="height: 100%; width: 25%; padding-right:5%; float: left;"><button class="ui inverted teal button" id="screen_5" style="height: 100%; width: 90%; " onclick="screen_5_click()">屏幕5</button></div>
+      <div style="height: 100%; width: 25%; padding-right:5%; float: left;"><button class="ui inverted teal button" id="screen_6" style="height: 100%; width: 90%; " onclick="screen_6_click()">屏幕6</button></div>
+      <div style="height: 100%; width: 25%; padding-right:5%; float: left;"><button class="ui inverted teal button" id="screen_7" style="height: 100%; width: 90%; " onclick="screen_7_click()">屏幕7</button></div>
+      <div style="height: 100%; width: 25%; padding-right:5%; float: left;"><button class="ui inverted teal button" id="screen_8" style="height: 100%; width: 90%; " onclick="screen_8_click()">屏幕8</button></div>
 
     </div>
     
@@ -343,10 +344,51 @@ h1 {
       }  
   });
 
+  function screen_0_click(){
+    lsbridge.send('login-page', { message: 'screen_select', screenId: 'screen_0'});
+  }
+
+  function screen_1_click(){
+    lsbridge.send('login-page', { message: 'screen_select', screenId: 'screen_1'});
+  }
+
+  function screen_2_click(){
+    lsbridge.send('login-page', { message: 'screen_select', screenId: 'screen_2'});
+  }
+
+  function screen_3_click(){
+    lsbridge.send('login-page', { message: 'screen_select', screenId: 'screen_3'});
+  }
+
+  function screen_4_click(){
+    lsbridge.send('login-page', { message: 'screen_select', screenId: 'screen_4'});
+  }
+
+  function screen_5_click(){
+    lsbridge.send('login-page', { message: 'screen_select', screenId: 'screen_5'});
+  }
+
+  function screen_6_click(){
+    lsbridge.send('login-page', { message: 'screen_select', screenId: 'screen_6'});
+  }
+
+  function screen_7_click(){
+    lsbridge.send('login-page', { message: 'screen_select', screenId: 'screen_7'});
+  }
+
+  function screen_8_click(){
+    lsbridge.send('login-page', { message: 'screen_select', screenId: 'screen_8'});
+  }
+
+  function screen_9_click(){
+    lsbridge.send('login-page', { message: 'screen_select', screenId: 'screen_9'});
+  }
+
   function _log_in(){
     console.log('进入');
     var curPassword = document.getElementById("_password").value;
     document.getElementById("screenselector").style.display="";
+    lsbridge.send('login-page', { message: 'login_success' });
     // $.ajax({
     //   url: 'http://202.120.60.31:3000/login', //请求的url
     //   type: 'get', //请求的方式
@@ -370,5 +412,17 @@ h1 {
     }, 1000);
 
   }
+
+  lsbridge.subscribe('login-page', function(data) {
+    console.log(data);
+    if(data.message == 'login_success'){
+      console.log('cascade login');
+      var evt = document.createEvent("MouseEvents");
+      evt.initEvent("click", false, false);
+      document.getElementById("login_button").dispatchEvent(evt);
+    }else if(data.message == 'screen_select'){
+      document.getElementById(data.screenId).className += ' disabled';
+    }
+  });
 
 </script>
