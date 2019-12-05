@@ -6,13 +6,21 @@ var query = require('../api/query');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-    if(req.query.password == 'sjtu123'){
-      res.render('index.html', { title: 'ExpressTitle' });
-      
-    }else{
-    res.render('login.html', { title: 'ExpressTitle' });
-    }
+  res.render('login_3.html', { title: 'ExpressTitle' });
 });
+
+router.get('/screen0', function(req, res, next) {
+  res.render('screen0.html', { title: 'ExpressTitle' });
+});
+
+router.get('/screen4', function(req, res, next) {
+  res.render('screen4.html', { title: 'ExpressTitle' });
+});
+
+router.get('/screen5', function(req, res, next) {
+  res.render('screen5.html', { title: 'ExpressTitle' });
+});
+
 
 router.get('/login', function(req, res, next) {
   if(req.query.password == 'sjtu123'){

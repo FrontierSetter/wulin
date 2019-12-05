@@ -271,6 +271,17 @@
         }
     }
 
+    function messageTypeNum(mes){
+            this.message = mes;
+            this.行驶 = 0;
+            this.休眠 = 0;
+            this.充电 = 0;
+            this.初始化 = 0;
+            this.上电 = 0;
+            this.未知 = 0;
+
+        }
+
     // 用于背景查询，当前需要查哪些值
     // var need_online = true;
     // var need_offline = true;
@@ -761,6 +772,97 @@
 
 // <!-- 背景查询 -->
 
+    function requestCurrentTypeNum(){
+        $.ajax({
+            url: 'http://202.120.60.31:3000/query/history/status', //请求的url
+            type: 'get', //请求的方式
+            data: 'limit=1',
+            error: function (data) {
+                console.log('requestCurrentTypeNum请求失败');
+            },
+            success: function (data) {
+               
+                for(var i = 0; i < totalOperatingModelCnt; ++i){
+                    cur_value[i] = 0;
+                }
+                
+                for(var i in data){
+                    cur_value[getOperatingModeType(data[i]['latest_info']['vehicle_operating_mode'])] += 1;
+                }
+
+                // var dic = new Array();
+                // dic['message'] = 'requestCurrentTypeNum';
+
+   
+
+                dic = {message : 'requestCurrentTypeNum', 
+                        行驶: cur_value[0], 
+                        休眠: cur_value[1], 
+                        充电: cur_value[2], 
+                        初始化: cur_value[3],
+                        上电: cur_value[4], 
+                        未知: cur_value[5], 
+                    };
+
+
+                lsbridge.send('screen_4', dic);        
+
+                lsbridge.send('screen_5', dic);        
+
+                // STACK
+
+                // if(!stackInitialFinish) return;
+
+                // var curDate = new Date().getTime();
+
+                // if(stack_time.length == 0 || curDate > stack_time[stack_time.length-1] || _shouldUpdataStack()){
+                //     if(stack_time.length >= 1500){
+                //         stack_time.shift();
+                //         stack_show_time.shift();
+                //         for(var i = 0; i < totalOperatingModelCnt; ++i){
+                //             stack_value[i].shift();
+                //         }
+                //         // stack_online.shift();
+                //         // stack_offline.shift();
+                //         // stack_charging.shift();
+                //         // stack_poweron.shift();
+                //         // stack_initmode.shift();
+                //     }
+                //     var tem = new Date().getTime();
+                //     stack_time.push(tem);
+                //     stack_show_time.push(_get_valide_date_for_stack(tem));
+                //     for(var i = 0; i < totalOperatingModelCnt; ++i){
+                //         // console.log('stack_value.length'+stack_value.length);
+
+                //         console.log('stack_value[i].length'+stack_value[i].length);
+
+                //         (stack_value[i]).push(cur_value[i]);
+                //     }
+                //     // stack_online.push(cur_online);
+                //     // stack_offline.push(cur_offline);
+                //     // stack_charging.push(cur_charging);
+                //     // stack_poweron.push(cur_poweron);
+                //     // stack_initmode.push(cur_initmode);
+
+                //     var option = myChartStack.getOption();
+                //     for(var i = 0; i < totalOperatingModelCnt; ++i){
+                //         option.series[i].data = stack_value[i];
+                //     }
+                //     // option.series[0].data = stack_online;
+                //     // option.series[1].data = stack_offline;
+                //     // option.series[2].data = stack_charging;
+                //     // option.series[3].data = stack_initmode;
+                //     // option.series[4].data = stack_poweron;
+                //     option.xAxis[0].data = stack_show_time;
+
+                //     myChartStack.setOption(option);
+
+                // }
+            }
+        });
+    }
+
+
 
 // <!-- 回调函数 -->  
 
@@ -1209,9 +1311,37 @@
         map.openInfoWindow(infoWindow, point);
     }
 
+    // 注册lsbridge
+    lsbridge.subscribe('screen_0', function(data) {
+        console.log(data);
+        if(data.message == 'pie_clicked'){
+            needBackgroundRequest[data.dataIndex] = !needBackgroundRequest[data.dataIndex];
+            if(needBackgroundRequest[data.dataIndex] == false){
+                for(var i = 0; i < backgroundCarOverlayOld[data.dataIndex].length; ++i){
+                    map.removeOverlay(backgroundCarOverlayOld[data.dataIndex][i]);
+                }
+                // backgroundCarOverlayOld[data.dataIndex];
+            }else{
+                if(backgroundCarOverlayOld[data.dataIndex].length != 0){
+                    for(var i = 0; i < backgroundCarOverlayOld[data.dataIndex].length; ++i){
+                        map.addOverlay(backgroundCarOverlayOld[data.dataIndex][i]);
+                    }
+                }
+            }
+            needAnimation[data.dataIndex] = true;
+        }
+
+    });
+
     // <!-- 网页启动 -->
     backToBackground();
     backgroundRequest();
+
+    requestCurrentTypeNum();
+    setInterval(function(){
+        if(pageStale) return;
+        requestCurrentTypeNum();
+    }, 12253 );
 
     setInterval(function(){
         if(pageStale) return;

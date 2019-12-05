@@ -128,4 +128,68 @@ var domPie = document.getElementById("Pie");
     }
 // <!-- Pie End -->
 </script>
+
+<script type="text/javascript">
+    var totalOperatingModelCnt = 6;
+    function getOperatingModeType(typeStr){
+        if(typeStr == '行驶'){
+            return 0;
+        }else if(typeStr == '休眠'){
+            return 1;
+        }else if(typeStr == '充电'){
+            return 2;
+        }else if(typeStr == '初始化'){
+            return 3;
+        }else if(typeStr == '上电'){
+            return 4;
+        }else{
+            return 5;
+        }
+    }
+
+    function getOperatingModeTypeName(typeNum){
+        if(typeNum == 0){
+            return '行驶';
+        }else if(typeNum == 1){
+            return '休眠';
+        }else if(typeNum == 2){
+            return '充电';
+        }else if(typeNum == 3){
+            return '初始化';
+        }else if(typeNum == 4){
+            return '上电';
+        }else{
+            return '未知';
+        }
+    }
+
+</script>
+
+<script type="text/javascript">
+
+    function eConsole(param) {
+        lsbridge.send('screen_0', { message: 'pie_clicked', dataIndex: param.dataIndex});
+    }
+
+    myChartPie.on("click", eConsole);
+
+    // 注册lsbridge
+    lsbridge.subscribe('screen_4', function(data) {
+        console.log(data);
+
+        if(data.message == 'requestCurrentTypeNum'){
+            var option = myChartPie.getOption();
+            for(var i = 0; i < totalOperatingModelCnt; ++i){
+                option.series[0].data[i]['value'] = data[getOperatingModeTypeName(i)];
+            }
+
+            myChartPie.setOption(option);
+        }
+        
+    });
+
+    window.onresize = function () {
+        myChartPie.resize();
+    }
+</script>
           

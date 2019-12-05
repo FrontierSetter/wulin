@@ -101,8 +101,8 @@
             {
                 type : 'category',
                 boundaryGap : false,
-                // data : new Array(),
-                data : ['','','','','','','', '']
+                data : new Array(),
+                // data : ['','','','','','','', '']
             }
         ],
         yAxis : [
@@ -128,48 +128,48 @@
                 type:'line',
                 stack: '总量',
                 areaStyle: {},
-                // data : new Array(),
-                data:[120, 132, 101, 134, 90, 230, 210,1000]
+                data : new Array(),
+                // data:[120, 132, 101, 134, 90, 230, 210,1000]
             },
             {
                 name:'休眠',
                 type:'line',
                 stack: '总量',
                 areaStyle: {},
-                // data : new Array(),
-                data:[220, 182, 191, 234, 290, 330, 310, 1000]
+                data : new Array(),
+                // data:[220, 182, 191, 234, 290, 330, 310, 1000]
             },
             {
                 name:'充电',
                 type:'line',
                 stack: '总量',
                 areaStyle: {},
-                // data : new Array(),
-                data:[150, 232, 201, 154, 190, 330, 410, 1000]
+                data : new Array(),
+                // data:[150, 232, 201, 154, 190, 330, 410, 1000]
             },
             {
                 name:'初始化',
                 type:'line',
                 stack: '总量',
                 areaStyle: {},
-                // data : new Array(),
-                data:[150, 232, 201, 154, 190, 330, 410, 1000]
+                data : new Array(),
+                // data:[150, 232, 201, 154, 190, 330, 410, 1000]
             },
             {
                 name:'上电',
                 type:'line',
                 stack: '总量',
                 areaStyle: {},
-                // data : new Array(),
-                data:[150, 232, 201, 154, 190, 330, 410, 1000]
+                data : new Array(),
+                // data:[150, 232, 201, 154, 190, 330, 410, 1000]
             },
             {
                 name:'未知',
                 type:'line',
                 stack: '总量',
                 areaStyle: {},
-                // data : new Array(),
-                data:[150, 232, 201, 154, 190, 330, 410, 1000]
+                data : new Array(),
+                // data:[150, 232, 201, 154, 190, 330, 410, 1000]
             },
         ]
     };
@@ -183,4 +183,224 @@
 // 层叠图 结束
 
 </script>
-          
+ 
+ <!-- 全局变量 -->
+<script type="text/javascript">
+    var totalOperatingModelCnt = 6;
+
+    var stack_time = new Array();
+    var stack_show_time = new Array();
+    var stack_value = new Array(totalOperatingModelCnt);
+    for(var i = 0; i < totalOperatingModelCnt; ++i){
+        stack_value[i] = new Array();
+    }
+
+    // 时间解析
+    // Date.parse("2018-11-30T09:49:50.000Z")
+    var timeGap = 1000*60*60*12;    //1000ms/s*60s/min*60min/h*12h
+
+    function timeValidate(rawTime){
+        return Math.floor(rawTime.getTime()/timeGap)*timeGap;
+    }
+
+    var totalOperatingModelCnt = 6;
+
+    function getOperatingModeType(typeStr){
+        if(typeStr == '行驶'){
+            return 0;
+        }else if(typeStr == '休眠'){
+            return 1;
+        }else if(typeStr == '充电'){
+            return 2;
+        }else if(typeStr == '初始化'){
+            return 3;
+        }else if(typeStr == '上电'){
+            return 4;
+        }else{
+            return 5;
+        }
+    }
+
+    function getOperatingModeTypeName(typeNum){
+        if(typeNum == 0){
+            return '行驶';
+        }else if(typeNum == 1){
+            return '休眠';
+        }else if(typeNum == 2){
+            return '充电';
+        }else if(typeNum == 3){
+            return '初始化';
+        }else if(typeNum == 4){
+            return '上电';
+        }else{
+            return '未知';
+        }
+    }
+
+
+    var needBackgroundRequest = new Array(totalOperatingModelCnt);
+
+    for(var i = 0; i < needBackgroundRequest.length; ++i){
+        needBackgroundRequest[i] = true;
+    }
+
+    // 单车历史轨迹参数
+    var singleCarFilteredPoints = new Array();
+    var singleCarTranslatedPoints = new Array();
+    var singleCarTranslatedPointsIdx = 0;
+    var singleCarFilteredPointsIdx = 0;
+
+    // stack初始化是否完成，防止在空stack里过早插入数据
+    var stackInitialFinish = false;
+
+
+</script>
+
+<!-- initial Stack -->
+<script type="text/javascript">
+    function _get_valide_date_for_stack(millisecond){
+        var tem = new Date();
+        tem.setTime(millisecond);
+        return tem.toLocaleString();
+    }
+
+    function _all_zero(idx){
+        for(var i = 0; i < totalOperatingModelCnt; ++i){
+            if(idx >= stack_value[i].length || stack_value[i][idx] != 0){
+                return false;
+            }
+        }
+        return true;
+    }
+    function do_initialStack(data){
+
+        for(var i = 0; i < totalOperatingModelCnt; ++i){
+            stack_value[i] = new Array(5000);
+        }
+        // console.log('stack array initial finish with length: '+stack_value[0].length);
+        stack_time = new Array(5000);
+        // stack_show_time = new Array(5000);
+        
+        var curDate = timeValidate(new Date());
+        // console.log('curDate'+curDate);
+
+        for(var i = 0; i < 5000; ++i){
+            // console.log(i);
+            stack_time[5000-1-i] = (curDate-timeGap*i);
+            for(var j = 0; j < totalOperatingModelCnt; ++j){
+                stack_value[j][i] = 0;
+            }
+        }
+
+        for(var c = 0; c < data.length; ++c){
+            // console.log(c);
+            curInfo = data[c]['info']
+            // console.log(curInfo.length);
+            var curDataIdx = 0;
+            for(var i in stack_time){
+                                // for(;curDataIdx < curInfo.length && timeValidate(curInfo[curDataIdx]['create_time']) <= stack_time[i]; ++curDataIdx){}
+                while(curDataIdx < curInfo.length && Date.parse(curInfo[curDataIdx]['create_time']) <= stack_time[i]){
+                    ++curDataIdx;
+                }
+                // if(curDataIdx < curInfo.length) console.log(curDataIdx+' '+Date.parse(curInfo[curDataIdx]['create_time'])+' '+stack_time[i]);
+                // else console.log('achieve length')
+                if(curDataIdx == 0){
+                    continue;
+                }else{
+                    stack_value[getOperatingModeType(curInfo[curDataIdx-1]['vehicle_operating_mode'])][i] += 1;
+                }
+            }
+        }
+        while(stack_time.length > 0){
+            if(_all_zero(0)){
+                for(var i = 0; i < totalOperatingModelCnt; ++i){
+                    stack_value[i].shift();
+                }
+                stack_time.shift();
+            }else{
+                break;
+            }
+        }
+
+        for(var i = 0; i < stack_time.length; ++i){
+            // var tem = new Date();
+            // tem.setTime(stack_time[i]);
+            stack_show_time.push(_get_valide_date_for_stack(stack_time[i]));
+        }
+
+        // console.log(stack_value[0].length);
+
+        var option = myChartStack.getOption();
+        for(var i = 0; i < totalOperatingModelCnt; ++i){
+            option.series[i].data = stack_value[i];
+        }
+        option.xAxis[0].data = stack_show_time;
+        // option.xAxis[0].data = stack_time;
+
+
+        myChartStack.setOption(option);
+
+        stackInitialFinish = true;
+
+    }
+
+    // 初始化层叠图
+    function initialStack(){
+        $.ajax({
+            url: 'http://202.120.60.31:3000/query/history/status', //请求的url
+            type: 'get', //请求的方式
+            data: 'limit=5000000',
+            error: function (data) {
+                console.log('initialStack请求失败');
+            },
+            success: function (data) {
+                do_initialStack(data);
+            }
+            
+        });
+
+    }
+</script>
+
+<!--  -->
+<script type="text/javascript">
+    initialStack();
+    lsbridge.subscribe('screen_5', function(data) {
+        console.log(data);
+
+        if(data.message == 'requestCurrentTypeNum'){
+            var curDate = new Date().getTime();
+
+            if(stack_time.length == 0 || curDate > stack_time[stack_time.length-1] || _shouldUpdataStack()){
+                if(stack_time.length >= 1500){
+                    stack_time.shift();
+                    stack_show_time.shift();
+                    for(var i = 0; i < totalOperatingModelCnt; ++i){
+                        stack_value[i].shift();
+                    }
+                }
+                var tem = new Date().getTime();
+                stack_time.push(tem);
+                stack_show_time.push(_get_valide_date_for_stack(tem));
+                for(var i = 0; i < totalOperatingModelCnt; ++i){
+                    // console.log(data[getOperatingModeTypeName(i)]);
+                    (stack_value[i]).push(data[getOperatingModeTypeName(i)]);
+                }
+
+
+                var option = myChartStack.getOption();
+                for(var i = 0; i < totalOperatingModelCnt; ++i){
+                    option.series[i].data = stack_value[i];
+                }
+                option.xAxis[0].data = stack_show_time;
+
+                myChartStack.setOption(option);
+            }
+        }
+        
+    });
+
+    window.onresize = function () {
+        myChartStack.resize();
+    }
+</script>
