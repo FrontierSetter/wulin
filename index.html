@@ -603,6 +603,10 @@
     // 用于背景查询的坐标缓存
     var backGroundPointCache = {};
 
+    // 历史状态接口被封掉之后用all/location接口来画饼图用
+    var pie_active_cnt = 0;
+    var pie_deactive_cnt = 0;
+
 
 // <!-- 单车查询 -->
     function do_singleCarTrace(){
@@ -778,6 +782,11 @@
                 console.log('requestSingleCarHistory success');
                 dataLine = new Array();
 
+                var dataType = curCarType;
+                if(dataType == 'velocity'){
+                    dataType = 'speed';
+                }
+
                 for(var i = 0; i < data.length; ++i){
                     var d = new Date();
                     d.setTime(Date.parse(data[i]['create_time']));
@@ -786,7 +795,7 @@
                         // [d.getFullYear(), d.getMonth() + 1, d.getDate()].join('/')
                         value: [
                             d.getTime(),
-                            data[i][curCarType]
+                            data[i][dataType]
                         ]
                     })
                 }
@@ -826,6 +835,7 @@
             },
             success: function (data) {
                 console.log('requestSingleCar success');
+                console.log(data);
                 if(!curSingleMode) return;
 
                 if(data.length == 0) return;
@@ -873,7 +883,11 @@
 // <!-- 默认查询 -->
     function requestOnline(){
         // console.log('requestOnline '+carPosition[0].length);
-        if(carPosition[0].length == 0) return;
+        if(carPosition[0].length == 0){
+            drawOverlay(0);
+            // backgroundCarOverlayNew[0] = new Array();
+            return;
+        }
         
         carPositionIdx[0] = 0;
         var convertor = new BMap.Convertor();
@@ -882,7 +896,13 @@
         convertor.translate(pointArr, 1, 5, translateCallBackOnline);
     }
     function requestOffline(){
-        if(carPosition[1].length == 0) return;
+        if(carPosition[1].length == 0){
+            // console.log(backgroundCarOverlayNew[1].length);
+            drawOverlay(1);
+
+            // backgroundCarOverlayNew[1] = new Array();
+            return;
+        }
         carPositionIdx[1] = 0;
         var convertor = new BMap.Convertor();
         var pointArr = [];
@@ -942,7 +962,7 @@
         filterDic = {};
         for(var i = 0; i < data.length; ++i){
             var tem_key = data[i]['car_VIN']
-            if(filterTrace.hasOwnProperty(tem_key) && filterTrace[tem_key]['create_time'] >= data[i]['tem_key']){
+            if(filterDic.hasOwnProperty(tem_key) && filterDic[tem_key]['create_time'] >= data[i]['create_time']){
                 continue;
             }else{
                 filterDic[tem_key] = data[i];
@@ -954,6 +974,21 @@
             filteredData.push(filterDic[k]);
         }
 
+    }
+
+    var activeThreshold = 1000*60*5;
+
+    function getMode(logTime, curTime){
+        var tem = Date.parse(logTime);
+        // console.log('curTime: '+curTime+' logTime: '+tem+' diff: '+(curTime-tem));
+        if(curTime-tem > activeThreshold){
+            // console.log('5 '+ (curTime-tem));
+            return 1; //表示未知
+        }else{
+            // console.log('0 '+(curTime-tem));
+
+            return 0; //表示运行中
+        }
     }
 
     function backgroundRequest(){
@@ -977,6 +1012,10 @@
 
                 filterBackgroundRequest(data);
 
+                var curTime = new Date().getTime();
+                pie_active_cnt = 0;
+                pie_deactive_cnt = 0;
+
 
                 for(var i = 0; i < filteredData.length; ++i){
 
@@ -986,7 +1025,15 @@
 
                     var tem_vin = filteredData[i]['car_VIN'];
                     var tem_point = new BMap.Point(filteredData[i]['longitude'], filteredData[i]['latitude']);
-                    var tem_type = getOperatingModeType(filteredData[i]['vehicle_operating_mode']);
+                    // var tem_type = getOperatingModeType(filteredData[i]['vehicle_operating_mode']);
+                    var tem_type = getMode(filteredData[i]['create_time'], curTime);
+
+                    if(tem_type == 0){
+                        pie_active_cnt += 1;
+                        console.log(tem_vin);
+                    }else{
+                        pie_deactive_cnt += 1;
+                    }
 
 
                     if(backGroundPointCache.hasOwnProperty(tem_vin) && backGroundPointCache[tem_vin]['raw'].equals(tem_point) && backGroundPointCache[tem_vin]['converted'] != undefined){
@@ -994,7 +1041,7 @@
                         
                         var marker = new BMap.Marker(backGroundPointCache[tem_vin]['converted']);
                         marker.setIcon(iconArr[tem_type]);
-                        var content = filteredData[i]['car_VIN']+' '+filteredData[i]['vehicle_operating_mode'];
+                        var content = filteredData[i]['car_VIN']+' '+getOperatingModeTypeName(tem_type);
                         // map.addOverlay(marker)
                         // if(needAnimation[5]) marker.setAnimation(BMAP_ANIMATION_DROP);//坠落动画
                         addMouseHandler(content, marker);
@@ -1015,7 +1062,7 @@
                             raw:tem_point,
                             converted:undefined
                         };
-                        (carPosition[getOperatingModeType(filteredData[i]['vehicle_operating_mode'])]).push([filteredData[i]['car_VIN']+' '+filteredData[i]['vehicle_operating_mode'], filteredData[i]['longitude'], filteredData[i]['latitude']]);
+                        (carPosition[tem_type]).push([filteredData[i]['car_VIN']+' '+getOperatingModeTypeName(tem_type), filteredData[i]['longitude'], filteredData[i]['latitude']]);
 
                     }
 
@@ -1034,6 +1081,15 @@
                     //     poweronCarPosition.push([data[i]['car_VIN'], data[i]['longitude'], data[i]['latitude']]);
                     // }
                 }
+
+                var option = myChartPie.getOption();
+                for(var i = 0; i < totalOperatingModelCnt; ++i){
+                    option.series[0].data[i]['value'] = 0;
+                }
+                option.series[0].data[0]['value'] = pie_active_cnt;
+                option.series[0].data[1]['value'] = pie_deactive_cnt;
+
+                myChartPie.setOption(option);
 
                 console.log('request: '+requestcnt+' cache: '+cachecnt);
                 console.log('nocar: '+nocarcnt+' unequal: '+unequalcnt+' undefine: '+undefinecnt);
@@ -1199,7 +1255,7 @@
         $.ajax({
             url: 'http://202.120.60.31:3000/query/history/status', //请求的url
             type: 'get', //请求的方式
-            data: 'limit=1',
+            data: 'limit=0',
             error: function (data) {
                 console.log('requestCurrentTypeNum请求失败');
             },
@@ -1229,16 +1285,22 @@
                     //     ++cur_initmode;
                     // }
                 }
-                var option = myChartPie.getOption();
-                for(var i = 0; i < totalOperatingModelCnt; ++i){
-                    option.series[0].data[i]['value'] = cur_value[i];
-                }
-                // option.series[0].data[0]['value'] = cur_online;
-                // option.series[0].data[1]['value'] = cur_offline;
-                // option.series[0].data[2]['value'] = cur_charging;
-                // option.series[0].data[3]['value'] = cur_initmode;
-                // option.series[0].data[4]['value'] = cur_poweron;
-                myChartPie.setOption(option);
+
+                // pie的修改转移到背景查询中了
+                // var option = myChartPie.getOption();
+                // for(var i = 0; i < totalOperatingModelCnt; ++i){
+                //     // option.series[0].data[i]['value'] = cur_value[i];
+                //     option.series[0].data[i]['value'] = 0;
+                // }
+                // option.series[0].data[0]['value'] = pie_active_cnt;
+                // option.series[0].data[1]['value'] = pie_deactive_cnt;
+
+                // // option.series[0].data[0]['value'] = cur_online;
+                // // option.series[0].data[1]['value'] = cur_offline;
+                // // option.series[0].data[2]['value'] = cur_charging;
+                // // option.series[0].data[3]['value'] = cur_initmode;
+                // // option.series[0].data[4]['value'] = cur_poweron;
+                // myChartPie.setOption(option);
 
                 // console.log('brk 1');
                 // var curDate = timeValidate(new Date());
@@ -2537,7 +2599,7 @@ var domGuage = document.getElementById("guage");
             // requestSingleCarHistory();
             requestSingleCar();
         }
-    }, 11719 );
+    }, 1543   );
 
     setInterval(function(){
         pageStale = true;
