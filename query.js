@@ -33,7 +33,7 @@ function db(sql, callback) {
 
 exports.get_single_info_java = function(req, res){
     console.log(req.query);
-    var requestDest = 'http://202.120.60.31:3000/api/datarequest?vin='+req.query.car_VIN;
+    var requestDest = 'http://202.120.60.31:3005/api/datarequest?vin='+req.query.car_VIN;
     request(requestDest, function (error, response, body) {
         // console.log('error:', error); // Print the error if one occurred
         // console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received

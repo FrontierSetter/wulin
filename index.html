@@ -281,7 +281,7 @@
                           </button>
                 </div>                    
                 <div id="right_bottom_coner_detail" style="height: 100%; width: 100%; padding-left:5%; float: left; overflow:auto">
-                        <div class="ui secondary vertical pointing menu" style="width: 100%">
+                        <div id="detail_div" class="ui secondary vertical pointing menu" style="width: 100%">
                             <a class="active item">
                                 车辆详情
                             </a>
@@ -607,6 +607,8 @@
     var pie_active_cnt = 0;
     var pie_deactive_cnt = 0;
 
+    var singleCarTraceInitFinish = false;
+
 
 // <!-- 单车查询 -->
     function do_singleCarTrace(){
@@ -682,12 +684,15 @@
         curNewOverlayHandler.setAnimation(BMAP_ANIMATION_BOUNCE);//跳动的动画
         addMouseHandler(content, curNewOverlayHandler);
 
+        singleCarTraceInitFinish = true;
+
         // console.log('brk0');
         
         var view = map.getViewport(eval([curOldOverlayHandler.getPosition(), curNewOverlayHandler.getPosition()]));
         var mapZoom = view.zoom; 
         var centerPoint = view.center; 
         map.centerAndZoom(centerPoint,mapZoom);
+
     }
 
     function rawPointValid(lon, lat){
@@ -738,10 +743,11 @@
     }
 
     function requestSingleCarTrace(){
+        singleCarTraceInitFinish = false;
         $.ajax({
             url: 'http://202.120.60.31:3000/query/single/route', //请求的url
             type: 'get', //请求的方式
-            data: 'car_VIN='+curCarVin+'&limit=5000000',
+            data: 'car_VIN='+curCarVin+'&limit=1440',
             error: function (data) {
                 console.log('requestSingleCarTrace请求失败');
             },
@@ -774,7 +780,7 @@
         $.ajax({
             url: 'http://202.120.60.31:3000/query/single/history', //请求的url
             type: 'get', //请求的方式
-            data: 'car_VIN='+curCarVin+'&type='+curCarType+'&limit=5000000',
+            data: 'car_VIN='+curCarVin+'&type='+curCarType+'&limit=1440',
             error: function (data) {
                 console.log('initialStack请求失败');
             },
@@ -825,9 +831,15 @@
         
     }
 
+    function createDetailItem(k, d){
+        var result = '<a id="detail_cumulative_mileage" class="item" href="javascript:void(0);">' + k + ' : ' + d + '</a> \n';
+        return result;
+        
+    }
+
     function requestSingleCar(){
         $.ajax({
-            url: 'http://202.120.60.31:3000/query/single/info', //请求的url
+            url: 'http://202.120.60.31:3000/query/single/info_java', //请求的url
             type: 'get', //请求的方式
             data: 'car_VIN='+curCarVin,
             error: function (data) {
@@ -836,18 +848,25 @@
             success: function (data) {
                 console.log('requestSingleCar success');
                 console.log(data);
+                data = JSON.parse(data);
+                console.log(data);
                 if(!curSingleMode) return;
 
                 if(data.length == 0) return;
-                data = data[0];
+
+                var elementList = '<a class="active item">车辆详情</a>\n';
 
                 // document.getElementById("detail_car").innerHTML = data;
                 for(var key in data){
                     // console.log("detail_"+key);
                     // console.log(''+key+ ' : '+data[key]);
-                    var element = document.getElementById('detail_'+key)
-                    if(element != null) element.innerHTML = ''+key+ ' : '+data[key];
+
+                    // var element = document.getElementById('detail_'+key)
+                    // if(element != null) element.innerHTML = ''+key+ ' : '+data[key];
+                    elementList += createDetailItem(key, data[key]);
                 }
+
+                document.getElementById('detail_div').innerHTML = elementList;
 
                 if(rawPointValid(data['longitude'], data['latitude'])){
                     var convertor = new BMap.Convertor();
@@ -1808,7 +1827,9 @@
 
     function singleQueryTranslateCallBack(data){
         if(data.status != 0){
-            console.log('translateCallBackTrace');
+            console.log('singleQueryTranslateCallBack');
+        }else if(singleCarTraceInitFinish == false){
+            console.log('singleTrace : new query evoked, but initial not yet finished')
         }else{
             if(singleCarTranslatedPoints.length == 0){
                 singleCarTranslatedPoints.push(data.points[0]);
@@ -1825,6 +1846,7 @@
                 curNewOverlayHandler.setAnimation(BMAP_ANIMATION_BOUNCE);//跳动的动画
                 addMouseHandler(content, curNewOverlayHandler);
             }else if(!((data.points[0]).equals(singleCarTranslatedPoints[singleCarTranslatedPoints.length-1]))){
+                console.log('final icon should move');
                 map.removeOverlay(curNewOverlayHandler);
 
                 curNewOverlayHandler = new BMap.Marker(data.points[0]);
@@ -1840,8 +1862,6 @@
                 singleCarTranslatedPoints.push(data.points[0]);
                 
             }
-
-
         }
     }
 // <!-- 绘图 -->
