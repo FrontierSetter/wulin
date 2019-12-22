@@ -879,16 +879,16 @@
                 }
 
                 var curOption = myChartGuage.getOption();
-                curOption.series[0].data[0].value = data['velocity'];
-                curOption.series[1].data[0].value = data['drive_motor_rpm']/1000.0;
-                curOption.series[2].data[0].value = data['residual_energy'];
-                curOption.series[3].data[0].value = data['drive_motor_temperature'];
+                curOption.series[0].data[0].value = parseInt(data['speed'], 10);
+                curOption.series[1].data[0].value = parseInt(data['accPedalPos'], 10);
+                curOption.series[2].data[0].value = parseInt(data['batVoltage'], 10);
+                curOption.series[3].data[0].value = parseInt(data['batHighTemp'], 10);
                 myChartGuage.setOption(curOption,true);
 
-                console.log('velocity: '+data['velocity']);
-                console.log('drive_motor_rpm: '+data['drive_motor_rpm']);
-                console.log('residual_energy: '+data['residual_energy']);
-                console.log('drive_motor_temperature: '+data['drive_motor_temperature']);
+                console.log('speed: '+data['speed']);
+                console.log('accPedalPos: '+data['accPedalPos']);
+                console.log('batVoltage: '+data['batVoltage']);
+                console.log('batHighTemp: '+data['batHighTemp']);
 
             }
         });

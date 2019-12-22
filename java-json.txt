@@ -1,0 +1,22 @@
+{
+    "batHealth":"100",
+    "collectTime":"2019/12/11 17:39:56",
+    "batHighTemp":"14",     
+    "batElectric":"9.8",
+    "keyState":"0",
+    "latitude":"31.0297",
+    "gearState":"3",
+    "speed":"0",
+    "batVoltage":"11.4",
+    "batSoc":"67",
+    "batLowTemp":"13",
+    "djTemp":"23",
+    "djControllerTemp":"26",
+    "vin":"LK6ADCE25JB011062",
+    "brakePedalPos":"0",
+    "batCurrent":"0",
+    "accPedalPos":"0",
+    "remainMileage":"107",
+    "mileage":"1762",
+    "longitude":"121.441672"
+}
