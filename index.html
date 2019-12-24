@@ -900,6 +900,23 @@
                 console.log('batVoltage: '+data['batVoltage']);
                 console.log('batHighTemp: '+data['batHighTemp']);
 
+                var d = new Date();
+                d.setTime(Date.parse(data['collectTime']));
+                dataLine.push({
+                    name: d.toString(),
+                    // [d.getFullYear(), d.getMonth() + 1, d.getDate()].join('/')
+                    value: [
+                        d.getTime(),
+                        data['speed']
+                    ]
+                })
+
+                myChartLine.setOption({
+                    series: [{
+                        data: dataLine
+                    }]
+                });
+
                 shouldRequestSingle = true;
             }
         });
