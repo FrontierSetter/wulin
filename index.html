@@ -451,6 +451,7 @@
     }
 
 // <!-- 全局变量 当前激活脚本 状态信息 -->
+    var totalOperatingModelCnt = 6;
 
     // 用于层叠图的全局变量数组
     var stack_online;
@@ -463,8 +464,8 @@
     var stack_value = new Array(totalOperatingModelCnt);
     for(var i = 0; i < totalOperatingModelCnt; ++i){
         stack_value[i] = new Array();
+        console.log('stacklen ' + stack_value[i].length);
     }
-
     // 用于饼图和层叠图更新的数组
     var cur_value = new Array(totalOperatingModelCnt);
 
@@ -526,7 +527,6 @@
     // var poweronCarPosition = [];
     // var initmodeCarPosition = [];
 
-    var totalOperatingModelCnt = 6;
 
     var carPosition = new Array(totalOperatingModelCnt);
     for(var i = 0; i < carPosition.length; ++i){
@@ -1164,6 +1164,57 @@
 
                 myChartPie.setOption(option);
 
+                cur_value[0] = pie_active_cnt;
+                cur_value[1] = pie_deactive_cnt;
+
+                console.log('deactive: '+pie_deactive_cnt);
+
+                var curDate = curTime;
+
+                if(stack_time.length == 0 || curDate > stack_time[stack_time.length-1] || _shouldUpdataStack()){
+                    if(stack_time.length >= 1500){
+                        stack_time.shift();
+                        stack_show_time.shift();
+                        for(var i = 0; i < totalOperatingModelCnt; ++i){
+                            stack_value[i].shift();
+                        }
+                        // stack_online.shift();
+                        // stack_offline.shift();
+                        // stack_charging.shift();
+                        // stack_poweron.shift();
+                        // stack_initmode.shift();
+                    }
+                    var tem = curDate;
+                    stack_time.push(tem);
+                    stack_show_time.push(_get_valide_date_for_stack(tem));
+                    for(var i = 0; i < 2; ++i){
+                        // console.log('stack_value.length'+stack_value.length);
+
+                        // console.log('stack_value[i].length'+stack_value[i].length);
+
+                        (stack_value[i]).push(cur_value[i]);
+                    }
+                    // stack_online.push(cur_online);
+                    // stack_offline.push(cur_offline);
+                    // stack_charging.push(cur_charging);
+                    // stack_poweron.push(cur_poweron);
+                    // stack_initmode.push(cur_initmode);
+
+                    var option = myChartStack.getOption();
+                    for(var i = 0; i < totalOperatingModelCnt; ++i){
+                        option.series[i].data = stack_value[i];
+                    }
+                    // option.series[0].data = stack_online;
+                    // option.series[1].data = stack_offline;
+                    // option.series[2].data = stack_charging;
+                    // option.series[3].data = stack_initmode;
+                    // option.series[4].data = stack_poweron;
+                    option.xAxis[0].data = stack_show_time;
+
+                    myChartStack.setOption(option);
+
+                }
+
                 console.log('request: '+requestcnt+' cache: '+cachecnt);
                 console.log('nocar: '+nocarcnt+' unequal: '+unequalcnt+' undefine: '+undefinecnt);
 
@@ -1175,6 +1226,7 @@
                     if((needBackgroundRequest[i] == true) && (needProcess[i] == true)) requestFunction[i]();
                     // console.log(getOperatingModeTypeName(i)+' : '+carPosition[i].length);
                 }
+
 
             }
         });
@@ -1399,7 +1451,7 @@
                     stack_show_time.push(_get_valide_date_for_stack(tem));
                     for(var i = 0; i < totalOperatingModelCnt; ++i){
                         // console.log('stack_value.length'+stack_value.length);
-
+                        if(stack_value[i] == undefined) stack_value = new Array();
                         console.log('stack_value[i].length'+stack_value[i].length);
 
                         (stack_value[i]).push(cur_value[i]);
@@ -2664,15 +2716,15 @@ var domGuage = document.getElementById("guage");
 
 
     // <!-- 网页启动 -->
-    initialStack();
+    // initialStack();
     myChartPie.on("click", eConsole);
     backToBackground();
     requestCurrentTypeNum();
     backgroundRequest();
-    setInterval(function(){
-        if(pageStale) return;
-        requestCurrentTypeNum();
-    }, 12253 );
+    // setInterval(function(){
+    //     if(pageStale) return;
+    //     requestCurrentTypeNum();
+    // }, 12253 );
     setInterval(function(){
         // console.log('needUpdateMap: '+needUpdateMap);
         // console.log('mapLocked: '+mapLocked);
