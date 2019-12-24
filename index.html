@@ -580,6 +580,11 @@
         needBackgroundRequest[i] = true;
     }
 
+    var backgroundRequestProcessing = new Array(totalOperatingModelCnt);
+    for(var i = 0; i < backgroundRequestProcessing.length; ++i){
+        backgroundRequestProcessing[i] = false;
+    }
+
     // 单车历史轨迹参数
     var singleCarFilteredPoints = new Array();
     var singleCarTranslatedPoints = new Array();
@@ -608,6 +613,8 @@
     var pie_deactive_cnt = 0;
 
     var singleCarTraceInitFinish = false;
+
+    var shouldRequestSingle = true;
 
 
 // <!-- 单车查询 -->
@@ -706,7 +713,7 @@
     }
 
     function filterTrace(data){
-        console.log('filterTrace');
+        console.log('过滤前的历史轨迹长度: '+data.length);
         for(var i = 0; i < data.length; ++i){
             // if (data[i]['longitude'] == null || data[i]['latitude'] == null) {
             //     continue;
@@ -714,6 +721,7 @@
             // if (data[i]['longitude'] > 124 || data[i]['longitude'] < 118 || data[i]['latitude'] > 35 || data[i]['latitude'] < 27) {
             //     continue;
             // }
+
             if(!rawPointValid(data[i]['longitude'], data[i]['latitude'])){
                 continue;
             }
@@ -838,6 +846,8 @@
     }
 
     function requestSingleCar(){
+        if(shouldRequestSingle == false) return;
+        shouldRequestSingle = false;
         $.ajax({
             url: 'http://202.120.60.31:3000/query/single/info_java', //请求的url
             type: 'get', //请求的方式
@@ -890,6 +900,7 @@
                 console.log('batVoltage: '+data['batVoltage']);
                 console.log('batHighTemp: '+data['batHighTemp']);
 
+                shouldRequestSingle = true;
             }
         });
 
@@ -908,6 +919,7 @@
             return;
         }
         
+        backgroundRequestProcessing[0] = true;
         carPositionIdx[0] = 0;
         var convertor = new BMap.Convertor();
         var pointArr = [];
@@ -916,12 +928,13 @@
     }
     function requestOffline(){
         if(carPosition[1].length == 0){
-            // console.log(backgroundCarOverlayNew[1].length);
+            // console.log("backgroundCarOverlayNew[1].length" + backgroundCarOverlayNew[1].length);
             drawOverlay(1);
 
             // backgroundCarOverlayNew[1] = new Array();
             return;
         }
+        backgroundRequestProcessing[1] = true;
         carPositionIdx[1] = 0;
         var convertor = new BMap.Convertor();
         var pointArr = [];
@@ -929,7 +942,12 @@
         convertor.translate(pointArr, 1, 5, translateCallBackOffline);
     }
     function requestCharging(){
-        if(carPosition[2].length == 0) return;
+        if(carPosition[2].length == 0){
+            drawOverlay(2);
+            return;
+        }
+        
+        backgroundRequestProcessing[2] = true;
         carPositionIdx[2] = 0;
         var convertor = new BMap.Convertor();
         var pointArr = [];
@@ -937,7 +955,12 @@
         convertor.translate(pointArr, 1, 5, translateCallBackCharging);
     }
     function requestInitmode(){
-        if(carPosition[3].length == 0) return;
+        if(carPosition[3].length == 0){
+            drawOverlay(3);
+            return;
+        }
+        
+        backgroundRequestProcessing[3] = true;
         carPositionIdx[3] = 0;
         var convertor = new BMap.Convertor();
         var pointArr = [];
@@ -945,7 +968,12 @@
         convertor.translate(pointArr, 1, 5, translateCallBackInitmode);
     }
     function requestPoweron(){
-        if(carPosition[4].length == 0) return;
+        if(carPosition[4].length == 0){
+            drawOverlay(4);
+            return;
+        }
+        
+        backgroundRequestProcessing[4] = true;
         carPositionIdx[4] = 0;
         var convertor = new BMap.Convertor();
         var pointArr = [];
@@ -953,8 +981,12 @@
         convertor.translate(pointArr, 1, 5, translateCallBackPoweron);
     }
     function requestUnknown(){
-        console.log('requestUnknown');
-        if(carPosition[5].length == 0) return;
+        if(carPosition[5].length == 0){
+            drawOverlay(5);
+            return;
+        }
+        
+        backgroundRequestProcessing[5] = true;
         carPositionIdx[5] = 0;
         var convertor = new BMap.Convertor();
         var pointArr = [];
@@ -981,7 +1013,7 @@
         filterDic = {};
         for(var i = 0; i < data.length; ++i){
             var tem_key = data[i]['car_VIN']
-            if(filterDic.hasOwnProperty(tem_key) && filterDic[tem_key]['create_time'] >= data[i]['create_time']){
+            if(filterDic.hasOwnProperty(tem_key) && (Date.parse(filterDic[tem_key]['create_time']) >= Date.parse(data[i]['create_time']))){
                 continue;
             }else{
                 filterDic[tem_key] = data[i];
@@ -990,12 +1022,16 @@
 
         filteredData = new Array();
         for(var k in filterDic){
+            if(k == "LK6ADCE20HB005678"){
+                console.log("LK6ADCE20HB005678: ")
+                console.log(filterDic[k]);
+            }
             filteredData.push(filterDic[k]);
         }
 
     }
 
-    var activeThreshold = 1000*60*5;
+    var activeThreshold = 1000*60*3;
 
     function getMode(logTime, curTime){
         var tem = Date.parse(logTime);
@@ -1019,8 +1055,22 @@
                 console.log('initialStack请求失败');
             },
             success: function (data) {
+                var needProcess = Array(totalOperatingModelCnt);
                 for(var i = 0; i < totalOperatingModelCnt; ++i){
-                    carPosition[i] = [];
+                    if(backgroundRequestProcessing[i] == true){
+                        needProcess[i] = false;
+                        console.log('background lock: '+getOperatingModeTypeName(i));
+                    }else{
+                        needProcess[i] = true
+                    }
+                }
+
+                for(var i = 0; i < totalOperatingModelCnt; ++i){
+                    if(needProcess[i] == false){
+                        continue;
+                    }else{
+                        carPosition[i] = [];
+                    }
                 }
 
                 var requestcnt = 0;
@@ -1054,13 +1104,16 @@
                         pie_deactive_cnt += 1;
                     }
 
+                    // backGroundPointCache = {};
+                    // console.log(backGroundPointCache);
+
 
                     if(backGroundPointCache.hasOwnProperty(tem_vin) && backGroundPointCache[tem_vin]['raw'].equals(tem_point) && backGroundPointCache[tem_vin]['converted'] != undefined){
                         cachecnt += 1;
                         
                         var marker = new BMap.Marker(backGroundPointCache[tem_vin]['converted']);
                         marker.setIcon(iconArr[tem_type]);
-                        var content = filteredData[i]['car_VIN']+' '+getOperatingModeTypeName(tem_type);
+                        var content = filteredData[i]['car_VIN']+' '+getOperatingModeTypeName(tem_type)+' '+filteredData[i]['longitude']+' '+filteredData[i]['latitude'];
                         // map.addOverlay(marker)
                         // if(needAnimation[5]) marker.setAnimation(BMAP_ANIMATION_DROP);//坠落动画
                         addMouseHandler(content, marker);
@@ -1081,8 +1134,9 @@
                             raw:tem_point,
                             converted:undefined
                         };
-                        (carPosition[tem_type]).push([filteredData[i]['car_VIN']+' '+getOperatingModeTypeName(tem_type), filteredData[i]['longitude'], filteredData[i]['latitude']]);
-
+                        if(needProcess[tem_type] == true){
+                            (carPosition[tem_type]).push([filteredData[i]['car_VIN']+' '+getOperatingModeTypeName(tem_type)+' '+filteredData[i]['longitude']+' '+filteredData[i]['latitude'], filteredData[i]['longitude'], filteredData[i]['latitude']]);
+                        }
                     }
 
                     // (carPosition[getOperatingModeType(data[i]['vehicle_operating_mode'])]).push([data[i]['car_VIN']+' '+data[i]['vehicle_operating_mode'], new Bmap.Point(data[i]['longitude'], data[i]['latitude'])]);
@@ -1118,7 +1172,7 @@
                 // }
                 for(var i = 0; i < totalOperatingModelCnt; ++i){
                     // console.log("request: "+i+" "+carPosition[i].length);
-                    if(needBackgroundRequest[i]) requestFunction[i]();
+                    if((needBackgroundRequest[i] == true) && (needProcess[i] == true)) requestFunction[i]();
                     // console.log(getOperatingModeTypeName(i)+' : '+carPosition[i].length);
                 }
 
@@ -1476,6 +1530,7 @@
             curSingleMode = true;
             mapLocked = false;
             console.log('request History finish'+ curSingleMode);
+            shouldRequestSingle = true;
 
             
         // }
@@ -1546,6 +1601,7 @@
             ++carPositionIdx[0];
             if(carPositionIdx[0] == carPosition[0].length){
                 needAnimation[0] = false;
+                backgroundRequestProcessing[0] = false;
                 drawOverlay(0);
 
                 // for(var i = 0; i < totalOperatingModelCnt; ++i){
@@ -1567,9 +1623,18 @@
         if(data.status != 0){
             console.log('translateCallBackOffline错误');
         }else{
+            // console.log(data);
             var marker = new BMap.Marker(data.points[0]);
             marker.setIcon(iconArr[1]);
             var content = carPosition[1][carPositionIdx[1]][0];
+            // console.log(content);
+            // console.log(''+carPosition[1][carPositionIdx[1]][0] +', '+ carPosition[1][carPositionIdx[1]][1] + ', '+ carPosition[1][carPositionIdx[1]][2])
+
+            // if(carPosition[1][carPositionIdx[1]][0] == 'LK6ADCE20HB005700 休眠'){
+            //     console.log(''+carPosition[1][carPositionIdx[1]][0] +', '+ carPosition[1][carPositionIdx[1]][1] + ', '+ carPosition[1][carPositionIdx[1]][2])
+            //     console.log(data.points[0])
+            // }
+
             // map.addOverlay(marker)
             // if(needAnimation[1]) marker.setAnimation(BMAP_ANIMATION_DROP);//坠落动画
             addMouseHandler(content, marker);
@@ -1582,6 +1647,7 @@
             ++carPositionIdx[1];
             if(carPositionIdx[1] == carPosition[1].length){
                 needAnimation[1] = false;
+                backgroundRequestProcessing[1] = false;
                 drawOverlay(1);
 
                 // for(var i = 0; i < totalOperatingModelCnt; ++i){
@@ -1618,6 +1684,7 @@
             ++carPositionIdx[2];
             if(carPositionIdx[2] == carPosition[2].length){
                 needAnimation[2] = false;
+                backgroundRequestProcessing[2] = false;
                 drawOverlay(2);
 
                 // for(var i = 0; i < totalOperatingModelCnt; ++i){
@@ -1654,6 +1721,7 @@
             ++carPositionIdx[3];
             if(carPositionIdx[3] == carPosition[3].length){
                 needAnimation[3] = false;
+                backgroundRequestProcessing[3] = false;
                 drawOverlay(3);
 
                 // for(var i = 0; i < totalOperatingModelCnt; ++i){
@@ -1690,6 +1758,7 @@
             ++carPositionIdx[4];
             if(carPositionIdx[4] == carPosition[4].length){
                 needAnimation[4] = false;
+                backgroundRequestProcessing[4] = false;
                 drawOverlay(4);
 
                 // for(var i = 0; i < totalOperatingModelCnt; ++i){
@@ -1730,6 +1799,7 @@
             if(carPositionIdx[5] == carPosition[5].length){
                 needAnimation[5] = false;
                 // console.log('unknown translate finish');
+                backgroundRequestProcessing[5] = false;
                 drawOverlay(5);
 
                 // for(var i = 0; i < totalOperatingModelCnt; ++i){
@@ -2623,6 +2693,6 @@ var domGuage = document.getElementById("guage");
 
     setInterval(function(){
         pageStale = true;
-    }, 600000);
+    }, 1800000);
 </script>
           
