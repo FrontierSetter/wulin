@@ -47,6 +47,8 @@
 
         <link href="https://cdn.bootcss.com/semantic-ui/2.4.1/components/icon.css" rel="stylesheet">
 
+        <script type="text/javascript" src="vin_license.js"></script>
+
         <!-- <script src="package.js"></script> -->
 
 
@@ -1130,7 +1132,7 @@
                         
                         var marker = new BMap.Marker(backGroundPointCache[tem_vin]['converted']);
                         marker.setIcon(iconArr[tem_type]);
-                        var content = filteredData[i]['car_VIN']+' '+getOperatingModeTypeName(tem_type)+' '+filteredData[i]['longitude']+' '+filteredData[i]['latitude'];
+                        var content = filteredData[i]['car_VIN']+' '+vin2license[filteredData[i]['car_VIN']]+' '+getOperatingModeTypeName(tem_type);
                         // map.addOverlay(marker)
                         // if(needAnimation[5]) marker.setAnimation(BMAP_ANIMATION_DROP);//坠落动画
                         addMouseHandler(content, marker);
@@ -1152,7 +1154,7 @@
                             converted:undefined
                         };
                         if(needProcess[tem_type] == true){
-                            (carPosition[tem_type]).push([filteredData[i]['car_VIN']+' '+getOperatingModeTypeName(tem_type)+' '+filteredData[i]['longitude']+' '+filteredData[i]['latitude'], filteredData[i]['longitude'], filteredData[i]['latitude']]);
+                            (carPosition[tem_type]).push([filteredData[i]['car_VIN']+' '+vin2license[filteredData[i]['car_VIN']]+' '+getOperatingModeTypeName(tem_type), filteredData[i]['longitude'], filteredData[i]['latitude']]);
                         }
                     }
 
