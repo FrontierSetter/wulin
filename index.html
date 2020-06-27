@@ -88,6 +88,9 @@
         <a class="item" href="javascript:void(0);" onclick="logout()">
             退出登录
         </a>
+        <a class="item" href="202.120.60.31:3000/heatmap">
+            热力图模式
+        </a>
         <script>
             function reactivate(){
                 pageStale = false;
@@ -757,7 +760,7 @@
         $.ajax({
             url: 'http://202.120.60.31:3000/query/single/route', //请求的url
             type: 'get', //请求的方式
-            data: 'car_VIN='+curCarVin+'&limit=1440',
+            data: 'car_VIN='+curCarVin+'&limit=60',
             error: function (data) {
                 console.log('requestSingleCarTrace请求失败');
             },
@@ -790,7 +793,7 @@
         $.ajax({
             url: 'http://202.120.60.31:3000/query/single/history', //请求的url
             type: 'get', //请求的方式
-            data: 'car_VIN='+curCarVin+'&type='+curCarType+'&limit=1440',
+            data: 'car_VIN='+curCarVin+'&type='+curCarType+'&limit=60',
             error: function (data) {
                 console.log('initialStack请求失败');
             },
