@@ -49,7 +49,7 @@
     <style type="text/css">
         div#map_container    {width: 75%;height: 100%; background: rgb(6, 211, 50); overflow: hidden;margin:0;font-family:"微软雅黑"; float: left;}
         div#info_container    {width: 25%;height: 100%; background: rgb(222, 221, 226); overflow: hidden;margin:0;font-family:"微软雅黑"; float: left;}
-        div#progress_bar {top:0; left:0;width: 75%;height: 100%;position:fixed; z-index: 999;;display: none; overflow: hidden;margin:0;font-family:"微软雅黑";}
+        div#progress_bar {top:0; left:0;width: 100%;height: 100%;position:fixed; z-index: 999;;display: none; overflow: hidden;margin:0;font-family:"微软雅黑";}
         /* div#posDetail {width: 20%; height:35%; background: rgb(211, 21, 21);float: left;}
         div#posNotice {width: 20%; height:65%; background: rgb(15, 12, 201);float: left;} */
 	</style>
@@ -62,11 +62,13 @@
     <div class="pusher" style="height: 100%; margin: 0" >
         <div id="map_container"></div>
         <div id="progress_bar">
-            <div class="ui indicating progress" id="progress_0" data-percent="0" style="margin: auto;">
-                <div class="bar">
-                    <div class="progress"></div>
+            <div>
+                <div class="ui indicating progress" id="progress_0" data-percent="0">
+                    <div class="bar">
+                        <div class="progress"></div>
+                    </div>
+                    <div class="label">加载</div>
                 </div>
-                <div class="label">加载</div>
             </div>
         </div>
         <div id="info_container">
@@ -129,18 +131,22 @@
 
             <p>热力辐射范围</p>
             <form oninput="x3.value=range3.value">
-                <input type="range" id="range3" min="10" max="100" value="30" step="4" onchange="(function(val){
+                <input type="range" id="range3" min="10" max="100" value="40" step="1" onchange="(function(val){
                     heatmapOverlay.setOptions({radius:val});
                 })(this.value)"/>
                 ->
-                <output name="x3" for="range3" >30</output>
+                <output name="x3" for="range3" >40</output>
             </form>
 
 
             <div class="ui divider"></div>
-            <button class="ui blue button" style="float: right;" onclick="toggleMarker()">
+            <!-- <button class="ui blue button" style="float: right;" onclick="toggleMarker()">
                 marker
-            </button>
+            </button> -->
+            <div class="ui toggle checkbox" onclick="toggleMarker()">
+                <input type="checkbox" name="public" checked="checked">
+                <label>marker</label>
+            </div>
 
             <!-- 过滤器 -->
             <!-- <div class="ui styled accordion">
@@ -274,12 +280,23 @@
     var curStep = 5*60; // 5分钟
     var curRemain = 999;
 
+    var rottenSpan = 2*30*24*60*60; //2个月大概
+
     function initMap(){
 
     }
 
+    function getNextPointSet(){
+        console.log(curStamp+'finish')
+        curStamp += curStep;
+        $('#progress_0')
+            .progress('increment')
+        ;
+        getPointSet();
+    }
+
     var translateCallback = function (data){
-        // console.log('state'+data.status);
+        console.log('state'+data.status);
         // console.log('points'+data.points);
         if(data.status === 0) {
             // pointSets[curStamp.toString()] = data.points;
@@ -296,13 +313,17 @@
 
         // curRemain -= 1;
         if(curRemain == pointSets[curStamp.toString()].length){
-            console.log(curStamp+'finish')
-            curStamp += curStep;
-            $('#progress_0')
-            .progress('increment')
-            ;
-            getPointSet();
+            getNextPointSet();
         }
+    }
+
+    function inDic(dic, key){
+        for(var k in dic){
+            if(k == key){
+                return true;
+            }
+        }
+        return false;
     }
 
     function getPointSet(){
@@ -320,50 +341,49 @@
             // initMarker(startTimeStamp.toString());
             return;
         }else{
-            $.ajax({
-                url: 'http://202.120.60.31:3000/query/all/location/batch/time',
-                type: 'get', //请求的方式
-                data:{'timestamp':curStamp},
-                error: function (data) {
-                    console.log('getPointSet请求失败');
-                },
-                success: function (data) {
-                    curRemain = data.length;
-                    // console.log(curStamp+' start');
-                    pointSets[curStamp.toString()] = new Array();
-                    // console.log(typeof(curStamp.toString()))
-                    
-                    var i = 0;
-                    while(i < data.length){
-                        var curPoints = [];
-                        for(var k = 0; k < 10 && i < data.length; ++k){
-                            curPoints.push(new BMap.Point(data[i]['longitude'], data[i]['latitude']));
-                            var convertor = new BMap.Convertor();
-                            ++i;
+            if(inDic(pointSets, curStamp.toString()) && pointSets[curStamp.toString()].length != 0){
+                getNextPointSet();
+            }else{
+                $.ajax({
+                    url: 'http://202.120.60.31:3000/query/all/location/batch/time',
+                    type: 'get', //请求的方式
+                    data:{'timestamp':curStamp},
+                    error: function (data) {
+                        console.log('getPointSet请求失败');
+                    },
+                    success: function (data) {
+                        curRemain = data.length;
+                        // console.log(curStamp+' start');
+                        pointSets[curStamp.toString()] = new Array();
+                        // console.log(typeof(curStamp.toString()))
+                        
+                        var i = 0;
+                        while(i < data.length){
+                            var curPoints = [];
+                            while(curPoints.length < 10 && i < data.length){
+                                if(Date.parse(data[i]['collectTime'])/1000 < (curStamp-rottenSpan)){
+                                    console.log('rotten');
+                                    --curRemain;
+                                    ++i;
+                                }else{
+                                    curPoints.push(new BMap.Point(data[i]['longitude'], data[i]['latitude']));       
+                                    ++i;
+                                }
+                            }
+                            if(curPoints.length > 0){
+                                console.log('convert')
+                                var convertor = new BMap.Convertor();
+                                convertor.translate(curPoints, 1, 5, translateCallback);
+                            }else{
+                                if(curRemain == pointSets[curStamp.toString()].length){
+                                    getNextPointSet();
+                                }
+                            }
                         }
-                        convertor.translate(curPoints, 1, 5, translateCallback)
+                        
                     }
-                    // for(var i = 0; i < data.length; ++i){
-                    //     // console.log(data[i]['longitude'], data[i]['latitude']);
-                    //     curPoints = [];
-                    //     curPoints.push(new BMap.Point(data[i]['longitude'], data[i]['latitude']));
-                    //     var convertor = new BMap.Convertor();
-                    //     convertor.translate(curPoints, 1, 5, translateCallback)
-                    //     // if(curPoints.length == 50){
-                            
-                    //     // }
-                    // }
-
-
-                    // console.log('length'+curPoints.length)
-                    // var convertor = new BMap.Convertor();
-                    // convertor.translate(curPoints, 1, 5, translateCallback)
-
-                    
-                    // pointSets[curStamp.toString()] = new Array();
-                    
-                }
-            }) 
+                }) 
+            }
         }
     }
 
