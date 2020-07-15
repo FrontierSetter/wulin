@@ -504,3 +504,19 @@ var license2vin = {
     "沪AD95988" : "LK6ADCE23HB005805",
 
 }
+
+function getLicenseByVin(vin){
+    if (vin2license.hasOwnProperty(vin)){
+        return vin2license[vin];
+    }else{
+        return "";
+    }
+}
+
+function getVinByLicense(license){
+    if (license2vin.hasOwnProperty(license)){
+        return license2vin[license];
+    }else{
+        return "";
+    }
+}

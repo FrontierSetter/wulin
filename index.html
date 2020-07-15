@@ -106,7 +106,7 @@
         <div id="mapDiv"></div>
         <div id="optionList">
             <div id="detailOption" style="height: 20%; width: 100%; float: left; ">
-                <select name="reques_type" class="ui dropdown" id="select">
+                <select name="reques_type" class="ui compact dropdown" id="select">
                     <optgroup label="车辆状态">
                         <option value="velocity" selected>速度</option>
                         <option value="cumulative_mileage">总行驶里程</option>
@@ -128,7 +128,7 @@
                     </optgroup>
                 </select>
                 
-                <select class="ui search selection dropdown" id="search-select"> 
+                <select class="ui compact search selection dropdown" id="search-select" onchange="vinChange()"> 
                     <option value="LK6ADCE20JB008246">LK6ADCE20JB008246</option>
                     <option value="LK6ADCE20JB008862">LK6ADCE20JB008862</option>
                     <option value="LK6ADCE20JB009252">LK6ADCE20JB009252</option>
@@ -254,9 +254,263 @@
 
                     
                 </select>
+                <select class="ui compact search selection dropdown" id="search-select-license" onchange="licenseChange()"> 
+                    <option value="AD89912">AD89912</option>
+                    <option value="AD93671">AD93671</option>
+                    <option value="AD96025">AD96025</option>
+                    <option value="AD04083">AD04083</option>
+                    <option value="AD72172">AD72172</option>
+                    <option value="AD08144">AD08144</option>
+                    <option value="AD04685">AD04685</option>
+                    <option value="AD76173">AD76173</option>
+                    <option value="AD67931">AD67931</option>
+                    <option value="AD89103">AD89103</option>
+                    <option value="AD68942">AD68942</option>
+                    <option value="AD90751">AD90751</option>
+                    <option value="AD65948">AD65948</option>
+                    <option value="AD86762">AD86762</option>
+                    <option value="AD70975">AD70975</option>
+                    <option value="AD91750">AD91750</option>
+                    <option value="AD73577">AD73577</option>
+                    <option value="AD88763">AD88763</option>
+                    <option value="AD95732">AD95732</option>
+                    <option value="AD07804">AD07804</option>
+                    <option value="AD64043">AD64043</option>
+                    <option value="AD70293">AD70293</option>
+                    <option value="AD86712">AD86712</option>
+                    <option value="AD92950">AD92950</option>
+                    <option value="AD93557">AD93557</option>
+                    <option value="AD91037">AD91037</option>
+                    <option value="AD95805">AD95805</option>
+                    <option value="AD91356">AD91356</option>
+                    <option value="AD70963">AD70963</option>
+                    <option value="AD77903">AD77903</option>
+                    <option value="AD77535">AD77535</option>
+                    <option value="AD68784">AD68784</option>
+                    <option value="AD79863">AD79863</option>
+                    <option value="AD79569">AD79569</option>
+                    <option value="AD76590">AD76590</option>
+                    <option value="AD76970">AD76970</option>
+                    <option value="AD64252">AD64252</option>
+                    <option value="AD71303">AD71303</option>
+                    <option value="AD81270">AD81270</option>
+                    <option value="AD64654">AD64654</option>
+                    <option value="AD75905">AD75905</option>
+                    <option value="AD79323">AD79323</option>
+                    <option value="AD64392">AD64392</option>
+                    <option value="AD04645">AD04645</option>
+                    <option value="AD04317">AD04317</option>
+                    <option value="AD70903">AD70903</option>
+                    <option value="AD89721">AD89721</option>
+                    <option value="AD72961">AD72961</option>
+                    <option value="AD77860">AD77860</option>
+                    <option value="AD87910">AD87910</option>
+                    <option value="AD82836">AD82836</option>
+                    <option value="AD82073">AD82073</option>
+                    <option value="AD00547">AD00547</option>
+                    <option value="AD77195">AD77195</option>
+                    <option value="AD96035">AD96035</option>
+                    <option value="AD82838">AD82838</option>
+                    <option value="AD04476">AD04476</option>
+                    <option value="AD85392">AD85392</option>
+                    <option value="AD81969">AD81969</option>
+                    <option value="AD86375">AD86375</option>
+                    <option value="AD91138">AD91138</option>
+                    <option value="AD68745">AD68745</option>
+                    <option value="AD79522">AD79522</option>
+                    <option value="AD79102">AD79102</option>
+                    <option value="AD79321">AD79321</option>
+                    <option value="AD78132">AD78132</option>
+                    <option value="AD89913">AD89913</option>
+                    <option value="AD85368">AD85368</option>
+                    <option value="AD81026">AD81026</option>
+                    <option value="AD04925">AD04925</option>
+                    <option value="AD86039">AD86039</option>
+                    <option value="AD78172">AD78172</option>
+                    <option value="AD04749">AD04749</option>
+                    <option value="AD92653">AD92653</option>
+                    <option value="AD70125">AD70125</option>
+                    <option value="AD92330">AD92330</option>
+                    <option value="AD76995">AD76995</option>
+                    <option value="AD75237">AD75237</option>
+                    <option value="AD76517">AD76517</option>
+                    <option value="AD77836">AD77836</option>
+                    <option value="AD04438">AD04438</option>
+                    <option value="AD92696">AD92696</option>
+                    <option value="AD70137">AD70137</option>
+                    <option value="AD95901">AD95901</option>
+                    <option value="AD75081">AD75081</option>
+                    <option value="AD81932">AD81932</option>
+                    <option value="AD96310">AD96310</option>
+                    <option value="AD73619">AD73619</option>
+                    <option value="AD03642">AD03642</option>
+                    <option value="AD91567">AD91567</option>
+                    <option value="AD71067">AD71067</option>
+                    <option value="AD04315">AD04315</option>
+                    <option value="AD86308">AD86308</option>
+                    <option value="AD89121">AD89121</option>
+                    <option value="AD66459">AD66459</option>
+                    <option value="AD77823">AD77823</option>
+                    <option value="AD71026">AD71026</option>
+                    <option value="AD75207">AD75207</option>
+                    <option value="AD99563">AD99563</option>
+                    <option value="AD04827">AD04827</option>
+                    <option value="AD99329">AD99329</option>
+                    <option value="AD70167">AD70167</option>
+                    <option value="AD79902">AD79902</option>
+                    <option value="AD01342">AD01342</option>
+                    <option value="AD82865">AD82865</option>
+                    <option value="AD86306">AD86306</option>
+                    <option value="AD61496">AD61496</option>
+                    <option value="AD90638">AD90638</option>
+                    <option value="AD70872">AD70872</option>
+                    <option value="AD04659">AD04659</option>
+                    <option value="AD00804">AD00804</option>
+                    <option value="AD63471">AD63471</option>
+                    <option value="AD86597">AD86597</option>
+                    <option value="AD97236">AD97236</option>
+                    <option value="AD85260">AD85260</option>
+                    <option value="AD09745">AD09745</option>
+                    <option value="AD03476">AD03476</option>
+                    <option value="AD97089">AD97089</option>
+                    <option value="AD76587">AD76587</option>
+                    <option value="AD98156">AD98156</option>
+                    <option value="AD97127">AD97127</option>
+                    <option value="AD83739">AD83739</option>
+                    <option value="AD86726">AD86726</option>
+                    <option value="AD90726">AD90726</option>
+                    <option value="AD64234">AD64234</option>
+                    <option value="AD85319">AD85319</option>
+                    <option value="AD67145">AD67145</option>
+                    <option value="AD92196">AD92196</option>
+                    <option value="AD80385">AD80385</option>
+                    <option value="AD99302">AD99302</option>
+                    <option value="AD89751">AD89751</option>
+                    <option value="AD95120">AD95120</option>
+                    <option value="AD70715">AD70715</option>
+                    <option value="AD95130">AD95130</option>
+                    <option value="AD95903">AD95903</option>
+                    <option value="AD87565">AD87565</option>
+                    <option value="AD65994">AD65994</option>
+                    <option value="AD79639">AD79639</option>
+                    <option value="AD93116">AD93116</option>
+                    <option value="AD76593">AD76593</option>
+                    <option value="AD70736">AD70736</option>
+                    <option value="AD72117">AD72117</option>
+                    <option value="AD02646">AD02646</option>
+                    <option value="AD71382">AD71382</option>
+                    <option value="AD72207">AD72207</option>
+                    <option value="AD78390">AD78390</option>
+                    <option value="AD76193">AD76193</option>
+                    <option value="AD95727">AD95727</option>
+                    <option value="AD04588">AD04588</option>
+                    <option value="AD90311">AD90311</option>
+                    <option value="沪AD92379">沪AD92379</option>
+                    <option value="沪AD78581">沪AD78581</option>
+                    <option value="沪AD99158">沪AD99158</option>
+                    <option value="沪AD97982">沪AD97982</option>
+                    <option value="沪AD79606">沪AD79606</option>
+                    <option value="沪AD90172">沪AD90172</option>
+                    <option value="沪AD77101">沪AD77101</option>
+                    <option value="沪AD76267">沪AD76267</option>
+                    <option value="沪AD97908">沪AD97908</option>
+                    <option value="沪AD98812">沪AD98812</option>
+                    <option value="沪AD95768">沪AD95768</option>
+                    <option value="沪AD90178">沪AD90178</option>
+                    <option value="沪AD95260">沪AD95260</option>
+                    <option value="沪AD86056">沪AD86056</option>
+                    <option value="沪AD98877">沪AD98877</option>
+                    <option value="沪AD78100">沪AD78100</option>
+                    <option value="沪AD72013">沪AD72013</option>
+                    <option value="沪AD97909">沪AD97909</option>
+                    <option value="沪AD92377">沪AD92377</option>
+                    <option value="沪AD79668">沪AD79668</option>
+                    <option value="沪AD68492">沪AD68492</option>
+                    <option value="沪AD90566">沪AD90566</option>
+                    <option value="沪AD92923">沪AD92923</option>
+                    <option value="沪AD81066">沪AD81066</option>
+                    <option value="沪AD79966">沪AD79966</option>
+                    <option value="沪AD97956">沪AD97956</option>
+                    <option value="沪AD81093">沪AD81093</option>
+                    <option value="沪AD76233">沪AD76233</option>
+                    <option value="沪AD92280">沪AD92280</option>
+                    <option value="沪AD92260">沪AD92260</option>
+                    <option value="沪AD98892">沪AD98892</option>
+                    <option value="沪AD86006">沪AD86006</option>
+                    <option value="沪AD95986">沪AD95986</option>
+                    <option value="沪AD99106">沪AD99106</option>
+                    <option value="沪AD99119">沪AD99119</option>
+                    <option value="沪AD92200">沪AD92200</option>
+                    <option value="沪AD77152">沪AD77152</option>
+                    <option value="沪AD95777">沪AD95777</option>
+                    <option value="沪AD96299">沪AD96299</option>
+                    <option value="沪AD79992">沪AD79992</option>
+                    <option value="沪AD96222">沪AD96222</option>
+                    <option value="沪AD96295">沪AD96295</option>
+                    <option value="沪AD99113">沪AD99113</option>
+                    <option value="沪AD93339">沪AD93339</option>
+                    <option value="沪AD76222">沪AD76222</option>
+                    <option value="沪AD78180">沪AD78180</option>
+                    <option value="沪AD90163">沪AD90163</option>
+                    <option value="沪AD77199">沪AD77199</option>
+                    <option value="沪AD77121">沪AD77121</option>
+                    <option value="沪AD77179">沪AD77179</option>
+                    <option value="沪AD92966">沪AD92966</option>
+                    <option value="沪AD78160">沪AD78160</option>
+                    <option value="沪AD90787">沪AD90787</option>
+                    <option value="沪AD78170">沪AD78170</option>
+                    <option value="沪AD71019">沪AD71019</option>
+                    <option value="沪AD90555">沪AD90555</option>
+                    <option value="沪AD79866">沪AD79866</option>
+                    <option value="沪AD97918">沪AD97918</option>
+                    <option value="沪AD81068">沪AD81068</option>
+                    <option value="沪AD99153">沪AD99153</option>
+                    <option value="沪AD98882">沪AD98882</option>
+                    <option value="沪AD81028">沪AD81028</option>
+                    <option value="沪AD97876">沪AD97876</option>
+                    <option value="沪AD90589">沪AD90589</option>
+                    <option value="沪AD98871">沪AD98871</option>
+                    <option value="沪AD93390">沪AD93390</option>
+                    <option value="沪AD72902">沪AD72902</option>
+                    <option value="沪AD04340">沪AD04340</option>
+                    <option value="沪AD99192">沪AD99192</option>
+                    <option value="沪AD98876">沪AD98876</option>
+                    <option value="沪AD78585">沪AD78585</option>
+                    <option value="沪AD81022">沪AD81022</option>
+                    <option value="沪AD95900">沪AD95900</option>
+                    <option value="沪AD93353">沪AD93353</option>
+                    <option value="沪AD81002">沪AD81002</option>
+                    <option value="沪AD98890">沪AD98890</option>
+                    <option value="沪AD71028">沪AD71028</option>
+                    <option value="沪AD79611">沪AD79611</option>
+                    <option value="沪AD90162">沪AD90162</option>
+                    <option value="沪AD95885">沪AD95885</option>
+                    <option value="沪AD98826">沪AD98826</option>
+                    <option value="沪AD96275">沪AD96275</option>
+                    <option value="沪AD97966">沪AD97966</option>
+                    <option value="沪AD90108">沪AD90108</option>
+                    <option value="沪AD78586">沪AD78586</option>
+                    <option value="沪AD99111">沪AD99111</option>
+                    <option value="沪AD92920">沪AD92920</option>
+                    <option value="沪AD92287">沪AD92287</option>
+                    <option value="沪AD86088">沪AD86088</option>
+                    <option value="沪AD85119">沪AD85119</option>
+                    <option value="沪AD86033">沪AD86033</option>
+                    <option value="沪AD92277">沪AD92277</option>
+                    <option value="沪AD92299">沪AD92299</option>
+                    <option value="沪AD97998">沪AD97998</option>
+                    <option value="沪AD99168">沪AD99168</option>
+                    <option value="沪AD95911">沪AD95911</option>
+                    <option value="沪AD81008">沪AD81008</option>
+                    <option value="沪AD97968">沪AD97968</option>
+                    <option value="沪AD92292">沪AD92292</option>
+                    <option value="沪AD95988">沪AD95988</option>
+
+                </select>
                 <script>
                     $('#select').dropdown();
                     $('#search-select').dropdown();
+                    $('#search-select-license').dropdown();
                 </script>
                 <div class="ui animated button" onclick="onClickSearchButton()">
                     <div class="visible content">搜索</div>
@@ -384,6 +638,46 @@
     </div>
     </body>
 </html>
+
+<script type="text/javascript">
+    var onChangeCalled = false;
+
+    function vinChange(){
+        if (onChangeCalled){
+            console.log("cascade");
+            onChangeCalled = false;
+            return;
+        }else{
+            onChangeCalled = true;
+        }
+
+        var requestId = document.getElementById('search-select');
+        var requestIdValue = requestId.options[requestId.selectedIndex].value;
+
+        console.log('vinchange to '+requestIdValue);
+        console.log('license to '+getLicenseByVin(requestIdValue));
+        $('#search-select-license').dropdown('set selected', getLicenseByVin(requestIdValue));
+    }
+
+    function licenseChange(){
+        if (onChangeCalled){
+            console.log("cascade");
+            onChangeCalled = false;
+            return;
+        }else{
+            onChangeCalled = true;
+        }
+
+        console.log('license change')
+        var requestLicense = document.getElementById('search-select-license');
+        var requestLicenseValue = requestLicense.options[requestLicense.selectedIndex].value;
+
+        console.log('licensechange to '+requestLicenseValue);
+        console.log('vin to '+getVinByLicense(requestLicenseValue));
+        $('#search-select').dropdown('set selected', getVinByLicense(requestLicenseValue));
+    }
+
+</script>
 
 <script type="text/javascript">
 
@@ -761,7 +1055,7 @@
         $.ajax({
             url: 'http://202.120.60.31:3000/query/single/route', //请求的url
             type: 'get', //请求的方式
-            data: 'car_VIN='+curCarVin+'&limit=60',
+            data: 'car_VIN='+curCarVin+'&limit=2880',
             error: function (data) {
                 console.log('requestSingleCarTrace请求失败');
             },
@@ -1574,6 +1868,11 @@
     function onClickOverlay(targetId){
         var requestType = document.getElementById('select');
         var requestTypeValue = requestType.options[requestType.selectedIndex].value;
+
+        //TODO: 通过车辆选择之后也要进行选择框联动修改
+        // $('#search-select')
+        //     .dropdown('set selected', targetId)
+        // ;
 
         do_initRequestSingleCar(requestTypeValue, targetId)
 
