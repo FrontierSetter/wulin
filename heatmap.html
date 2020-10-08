@@ -58,7 +58,12 @@
 
 <body>
     <div id="mySidebar" class="ui right inverted vertical menu sidebar">
-        <!-- <script src="static/sidebar.js"></script> -->
+        <a class="item" href="http://202.120.60.31:3000/home?token=hello">
+            监控模式
+        </a>
+        <a class="item" href="http://202.120.60.31:4000">
+            车辆大数据分析平台
+        </a>
     </div>
     <div class="pusher" style="height: 100%; margin: 0" >
         <div id="map_container"></div>
@@ -75,7 +80,9 @@
 
         <div id="info_container">
             <div style="height:10%">
-                <img width="100%" src="img/fog.jpg">
+                <img width="100%" src="img/fog.jpg" onclick="$('.ui.sidebar').sidebar({
+                    transition:'scale down' //默认uncover，可以取值push\overlay\slide along\slide out\scale down
+                }).sidebar('toggle');">
                 <!-- <h3 class="threed">自动驾驶电动汽车大数据云雾融合平台</h3> -->
             </div>
             <div>
