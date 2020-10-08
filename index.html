@@ -14,6 +14,13 @@
        <!-- <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=2GCVEjjkYGGiVjTR1EoENtf2SNzYaiRI"></script> -->
        <script type="text/javascript" src="http://api.map.baidu.com/api?v=3.0&ak=stCj3XtKtn4BKeUDSV512dwfCEDBkh6Y"></script>
 
+       <!--加载鼠标绘制工具-->
+        <script type="text/javascript" src="//api.map.baidu.com/library/DrawingManager/1.4/src/DrawingManager_min.js"></script>
+        <link rel="stylesheet" href="//api.map.baidu.com/library/DrawingManager/1.4/src/DrawingManager_min.css" />
+
+        <!-- 几何工具 -->
+        <script type="text/javascript" src="http://api.map.baidu.com/library/GeoUtils/1.2/src/GeoUtils_min.js"></script>
+
        
        <!-- <script src="theme/dark.js"></script> -->
        <!-- button -->
@@ -676,13 +683,14 @@
             <!-- <div id="Heatmap"" style="height: 100%; width: 50%; float: left;"></div> -->
             <div id="Stack" style="height: 100%; width: 50%; float: left;"></div>
             <div id="Board" style="height: 100%; width: 25%; float: left;">
-                <div id="right_bottom_coner_default" style="height: 40%; float: left; padding-right: 10%;">
+                <div id="right_bottom_coner_default" style="height: 100%; width: 100%; padding-right: 10%; overflow: scroll;">
                     <p id="time1" style="margin-left: 5%; margin-top: 5%;">item1</p>
-                    <iframe id="fancybox-frame" name="fancybox-frame1573219207283" frameborder="0" scrolling="no" hspace="0"  src="http://i.tianqi.com/index.php?c=code&a=getcode&id=35&h=55&w=200&py=minhang"></iframe>
+                    
+                    <!-- <iframe id="fancybox-frame" name="fancybox-frame1573219207283" frameborder="0" scrolling="no" hspace="0"  src="http://i.tianqi.com/index.php?c=code&a=getcode&id=35&h=55&w=200&py=minhang"></iframe> -->
                     <!-- <div style="float: right" href="javascript:void(0);" onclick="$('.ui.sidebar').sidebar('toggle');"><i class="huge angle left icon" ></i></div> -->
-                    <button class="ui button" href="javascript:void(0);" onclick="$('.ui.sidebar').sidebar('toggle');">
+                    <!-- <button class="ui button" href="javascript:void(0);" onclick="$('.ui.sidebar').sidebar('toggle');">
                             <i class="angle left icon" ></i>
-                        </button>
+                        </button> -->
                 </div>                    
                 <div id="right_bottom_coner_detail" style="height: 100%; width: 100%; padding-left:5%; float: left; overflow:auto">
                         <div id="detail_div" class="ui secondary vertical pointing menu" style="width: 100%">
@@ -845,6 +853,61 @@
     //     styleId: '17c84567c712a49ee687af01700e1d74'
     // });
 
+    var overlays = [];
+	var overlaycomplete = function(e){
+        overlays.push(e.overlay);
+        drawingManager.close();
+    };
+    var styleOptions = {
+        strokeColor:"red",    //边线颜色。
+        fillColor:"none",      //填充颜色。当参数为空时，圆形将没有填充效果。
+        strokeWeight: 3,       //边线的宽度，以像素为单位。
+        strokeOpacity: 0.8,	   //边线透明度，取值范围0 - 1。
+        fillOpacity: 0.6,      //填充的透明度，取值范围0 - 1。
+        strokeStyle: 'solid', //边线的样式，solid或dashed。
+        enableClicking: false,
+    }
+    //实例化鼠标绘制工具
+    var drawingManager = new BMapLib.DrawingManager(map, {
+        isOpen: false, //是否开启绘制模式
+        enableDrawingTool: false, //是否显示工具栏
+        drawingToolOptions: {
+            anchor: BMAP_ANCHOR_TOP_RIGHT, //位置
+            offset: new BMap.Size(5, 5), //偏离值
+        },
+        circleOptions: styleOptions, //圆的样式
+        polylineOptions: styleOptions, //线的样式
+        polygonOptions: styleOptions, //多边形的样式
+        rectangleOptions: styleOptions //矩形的样式
+    });  
+	 //添加鼠标绘制工具监听事件，用于获取绘制结果
+    drawingManager.addEventListener('overlaycomplete', overlaycomplete);
+
+    function clearAll() {
+        for(var i = 0; i < overlays.length; i++){
+            map.removeOverlay(overlays[i]);
+        }
+        overlays.length = 0   
+    }
+
+    function IsInPolygon(point, polygon){
+        if(BMapLib.GeoUtils.isPointInPolygon(point,polygon)){
+　　　　　　　return true;
+        }else{
+　　　　　　　return false;
+        }
+       
+    }
+
+    function IsInFance(point){
+        for(var i = 0; i < overlays.length; i++){
+            if(IsInPolygon(point, overlays[i]) == false){
+                return false;
+            }
+        }
+        return true;    
+    }
+
     // 右键菜单
     var menu = new BMap.ContextMenu();
 	var txtMenuItem = [
@@ -852,11 +915,25 @@
 			text:'返回全局模式',
 			callback:function(){backToBackground();}
 		},
+        {
+			text:'添加电子围栏',
+			callback:function(){
+                drawingManager.open();
+                drawingManager.setDrawingMode(BMAP_DRAWING_POLYGON);
+            }
+		},
+        {
+			text:'移除电子围栏',
+			callback:function(){
+                clearAll();
+            }
+		},
 		// {
 		// 	text:'缩小',
 		// 	callback:function(){map.zoomOut()}
 		// }
 	];
+
 	for(var i=0; i < txtMenuItem.length; i++){
 		menu.addItem(new BMap.MenuItem(txtMenuItem[i].text,txtMenuItem[i].callback,100));
 	}
@@ -2117,6 +2194,17 @@
             var tem_vin = content.split(' ')[0];
             backGroundPointCache[tem_vin]['converted'] = data.points[0];
 
+            if(IsInFance(data.points[0]) == false){
+                console.log("carPosition[0][carPositionIdx[0]]");
+                console.log(carPosition[0][carPositionIdx[0]]);
+
+                var obj = document.getElementById("right_bottom_coner_default");
+                var new_tex = document.createElement("p");
+                new_tex.innerHTML = carPosition[0][carPositionIdx[0]][0];
+                obj.appendChild(new_tex);
+
+            }
+
             
             ++carPositionIdx[0];
             if(carPositionIdx[0] == carPosition[0].length){
@@ -2162,6 +2250,16 @@
 
             var tem_vin = content.split(' ')[0];
             backGroundPointCache[tem_vin]['converted'] = data.points[0];
+
+            if(IsInFance(data.points[0]) == false){
+                console.log("carPosition[1][carPositionIdx[1]]");
+                console.log(carPosition[1][carPositionIdx[1]]);
+
+                var obj = document.getElementById("right_bottom_coner_default");
+                var new_tex = document.createElement("p");
+                new_tex.innerHTML = carPosition[1][carPositionIdx[1]][0];
+                obj.appendChild(new_tex);
+            }
 
             
             ++carPositionIdx[1];
