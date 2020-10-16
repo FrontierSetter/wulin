@@ -131,6 +131,7 @@
             </div>
             <div style="height:90%">
                 <div id="detailOption" style="height: 20%; width: 100%; float: left; ">
+                    <!-- 查询类型选择 -->
                     <select name="reques_type" class="ui compact dropdown" id="select">
                         <optgroup label="车辆状态">
                             <option value="velocity" selected>速度</option>
@@ -152,7 +153,7 @@
                             <option value="motor_controller_voltage">电机控制器电压</option>
                         </optgroup>
                     </select>
-                    
+                    <!-- vin选择 -->
                     <select class="ui compact search selection dropdown" id="search-select" onchange="vinChange()"> 
                         <option value="LK6ADCE22JB007910">LK6ADCE22JB007910</option>
                         <option value="LK6ADCE22JB011083">LK6ADCE22JB011083</option>
@@ -405,6 +406,7 @@
                         <option value="LK6ADCE26JB008882">LK6ADCE26JB008882</option>
                         <option value="LK6ADCE2XJB009243">LK6ADCE2XJB009243</option>                 
                     </select>
+                    <!-- 车牌号选择 -->
                     <select class="ui compact search selection dropdown" id="search-select-license" onchange="licenseChange()"> 
                         <option value="AD91750">AD91750</option>
                         <option value="AD75237">AD75237</option>
@@ -666,13 +668,20 @@
                         <div class="visible content">搜索</div>
                         <div class="hidden content"><i class="compass icon"></i></div>
                     </div>  
+                    <div class="ui right labeled left icon input">
+                        <i class="tags icon"></i>
+                        <input type="text" placeholder="修改车辆备注">
+                        <a class="ui tag label" onclick="addLabel()">
+                          修改备注
+                        </a>
+                    </div>
                 </div>
                 <div id="detailLine" style="height: 35%; width: 100%; float: left;">
                     <div id="dynamicLine" style="height: 110%; width: 100%; float: left;"></div>
                 </div>
 
                 <div id="detailPanel" style="height: 45%; width: 100%; float: left;">
-                    <div id="guage" style="height: 130%; width: 100%; float: left;"></div>
+                    <div id="guage" style="height: 100%; width: 85%; float: left; padding-left: 10%;"></div>
                 </div>
             </div>
             
@@ -684,7 +693,7 @@
             <div id="Stack" style="height: 100%; width: 50%; float: left;"></div>
             <div id="Board" style="height: 100%; width: 25%; float: left;">
                 <div id="right_bottom_coner_default" style="height: 100%; width: 100%; padding-right: 10%; overflow: scroll;">
-                    <p id="time1" style="margin-left: 5%; margin-top: 5%;">item1</p>
+                    <!-- <p id="time1" style="margin-left: 5%; margin-top: 5%;">item1</p> -->
                     
                     <!-- <iframe id="fancybox-frame" name="fancybox-frame1573219207283" frameborder="0" scrolling="no" hspace="0"  src="http://i.tianqi.com/index.php?c=code&a=getcode&id=35&h=55&w=200&py=minhang"></iframe> -->
                     <!-- <div style="float: right" href="javascript:void(0);" onclick="$('.ui.sidebar').sidebar('toggle');"><i class="huge angle left icon" ></i></div> -->
@@ -792,6 +801,13 @@
 </html>
 
 <script type="text/javascript">
+    function addLabel(){
+        alert("车辆功能尚未完善");
+    }
+
+</script>
+
+<script type="text/javascript">
     var onChangeCalled = false;
 
     function vinChange(){
@@ -856,6 +872,7 @@
     var overlays = [];
 	var overlaycomplete = function(e){
         overlays.push(e.overlay);
+        console.log(e.overlay.getPath())
         drawingManager.close();
     };
     var styleOptions = {
@@ -880,8 +897,38 @@
         polygonOptions: styleOptions, //多边形的样式
         rectangleOptions: styleOptions //矩形的样式
     });  
+    // 默认围栏
+    SJTUPoints = [new BMap.Point(121.427485,31.034331), new BMap.Point(121.452907,31.042871), new BMap.Point(121.458567,31.029102), new BMap.Point(121.433666,31.021489)]
+    defaulteFence = new BMap.Polygon(SJTUPoints, styleOptions)
+    overlays.push(defaulteFence)
+    
+    map.addOverlay(defaulteFence)
+    console.log('defaulteFence')
+    console.log(defaulteFence)
+    console.log(IsInPolygon(new BMap.Point(121.447176,31.033731), defaulteFence))
 	 //添加鼠标绘制工具监听事件，用于获取绘制结果
     drawingManager.addEventListener('overlaycomplete', overlaycomplete);
+
+
+    function centerAndZoomCarVin(e){
+        console.log($(e).text())
+        vin = $(e).text().split(' ')[0]
+
+        console.log('center:'+vin)
+        if((backGroundPointCache[vin] != undefined) && (backGroundPointCache[vin]['converted'] != undefined)){
+            console.log(backGroundPointCache[vin]['converted'])
+            console.log(IsInPolygon(backGroundPointCache[vin]['converted'], defaulteFence))
+            map.centerAndZoom(backGroundPointCache[vin]['converted'],20);
+        }else{
+            console.log('centerAndZoomCarVin undefined')
+        }
+    }
+
+    function centerAndZoomCoor(long, lati){
+        console.log(long,lati)
+        map.centerAndZoom(new BMap.Point(long, lati),20);
+
+    }
 
     function clearAll() {
         for(var i = 0; i < overlays.length; i++){
@@ -2200,6 +2247,7 @@
 
                 var obj = document.getElementById("right_bottom_coner_default");
                 var new_tex = document.createElement("p");
+                new_tex.setAttribute("onclick", "centerAndZoomCarVin(this)");
                 new_tex.innerHTML = carPosition[0][carPositionIdx[0]][0];
                 obj.appendChild(new_tex);
 
@@ -2252,11 +2300,14 @@
             backGroundPointCache[tem_vin]['converted'] = data.points[0];
 
             if(IsInFance(data.points[0]) == false){
-                console.log("carPosition[1][carPositionIdx[1]]");
+                // console.log("carPosition[1][carPositionIdx[1]]");
                 console.log(carPosition[1][carPositionIdx[1]]);
 
                 var obj = document.getElementById("right_bottom_coner_default");
                 var new_tex = document.createElement("p");
+                // curVin = carPosition[1][carPositionIdx[1]][0].split()[1]
+                console.log(tem_vin)
+                new_tex.setAttribute("onclick", "centerAndZoomCarVin(this)");
                 new_tex.innerHTML = carPosition[1][carPositionIdx[1]][0];
                 obj.appendChild(new_tex);
             }
